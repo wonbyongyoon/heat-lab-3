@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="강원대학교 식품공정공학연구실 윤원병">
+<title>열전달 실험실 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: lab bench (same system as 열저항 실험실 1·2). Condition rail on the left; live view, worked steps and practice stacked on the right. */
+:root{
+  --bg:#f1f4f6; --panel:#ffffff; --panel-2:#e9eef2; --scene:#f6f9fb; --ink:#15212b; --muted:#566475; --line:#d3dbe3;
+  --accent:#0a6a84; --accent-ink:#ffffff; --accent-soft:#d6ecf2; --good:#2a7a3b; --bad:#b42828; --warn:#9a5600;
+  --font-sans:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e141a; --panel:#151d25; --panel-2:#1c2630; --scene:#111921; --ink:#e4ecf3; --muted:#93a2b3; --line:#293644;
+  --accent:#4cc0dc; --accent-ink:#06222b; --accent-soft:#12323d; --good:#5ccf72; --bad:#ff7070; --warn:#f0a94c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141a; --panel:#151d25; --panel-2:#1c2630; --scene:#111921; --ink:#e4ecf3; --muted:#93a2b3; --line:#293644;
+  --accent:#4cc0dc; --accent-ink:#06222b; --accent-soft:#12323d; --good:#5ccf72; --bad:#ff7070; --warn:#f0a94c; color-scheme:dark}
+html{font-size:15px}
+html.big{font-size:18px}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;text-wrap:balance}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;padding-block:10px}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;min-width:0}
+.logo{width:38px;height:38px;border-radius:9px;flex:none;background:conic-gradient(from 200deg,#2b6cb0,#22a6c7,#f2c94c,#f2994a,#d64545,#2b6cb0)}
+.brand h1{font-size:1.3rem;font-weight:700;letter-spacing:-.01em}
+.brand .sub{margin:0;color:var(--muted);font-size:.86rem}
+.brand .author{margin:0;color:var(--accent);font-size:.8rem;font-weight:500}
+.tabs{display:flex;gap:4px;background:var(--panel-2);padding:4px;border-radius:10px;max-width:100%;overflow-x:auto;scrollbar-width:thin}
+.tabs button{border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:7px;font:600 .9rem var(--font-sans);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+button{font-family:var(--font-sans)}
+.ghost{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px;font-weight:500;cursor:pointer}
+.ghost[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.primary{border:0;background:var(--accent);color:var(--accent-ink);padding:9px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-block:18px 48px}
+@media (max-width:640px){.top{position:static}}
+.grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.rail,.stage{display:grid;gap:14px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.card h3{font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px}
+.card h2{font-size:1.08rem;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card p{margin:0 0 8px;max-width:72ch}
+.step-tag{font:600 .74rem var(--font-mono);color:var(--accent-ink);background:var(--accent);padding:2px 8px;border-radius:999px;letter-spacing:.04em}
+.step-tag.alt{background:var(--panel-2);color:var(--ink)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--panel-2);padding:4px;border-radius:9px}
+.seg button{border:0;background:transparent;color:var(--muted);padding:7px 6px;border-radius:6px;font-weight:600;cursor:pointer;font-size:.86rem}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 11px;font-size:.84rem;cursor:pointer}
+.chips button:hover,.chips button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.fields{display:grid;gap:10px;margin-top:10px}
+.fields.two{grid-template-columns:1fr 1fr}
+.f{display:grid;gap:4px;font-size:.86rem;color:var(--muted);min-width:0}
+.in{display:flex;align-items:center;border:1px solid var(--line);border-radius:7px;background:var(--panel);overflow:hidden;min-width:0}
+.in input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);padding:6px 8px;font:500 .92rem var(--font-mono);font-variant-numeric:tabular-nums}
+.in em{font-style:normal;color:var(--muted);font-size:.78rem;padding:0 8px 0 2px;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{width:100%;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);padding:7px 8px;font:500 .92rem var(--font-sans)}
+.props{margin-top:8px;font:500 .8rem var(--font-mono);color:var(--muted)}
+.mut{color:var(--muted)}
+.cap{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+canvas{display:block;width:100%;border-radius:9px;background:var(--scene)}
+.scene-bar{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.legend{display:flex;align-items:center;gap:8px;font-family:var(--font-mono)}
+.legend i{display:block;width:130px;height:10px;border-radius:5px;background:linear-gradient(90deg,#2b6cb0,#22a6c7,#f2c94c,#f2994a,#d64545)}
+.scene-bar .push{margin-left:auto}
+.scene-bar .ghost{padding:4px 10px;font-size:.8rem}
+.lk{display:inline-flex;align-items:center;gap:6px}
+.lk s{display:inline-block;width:22px;height:0;border-top:2.5px solid currentColor;text-decoration:none}
+.lk s.d{border-top-style:dashed}.lk s.o{border-top-style:dotted}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 12px;min-width:0}
+.tile span{display:block;font-size:.76rem;color:var(--muted);letter-spacing:.03em}
+.tile b{display:block;font:600 1.22rem var(--font-mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tile small{color:var(--muted);font-size:.76rem}
+.tile.key{background:var(--accent-soft);border-color:transparent}
+.tile.warn b{color:var(--warn)}
+.steps{margin:0;padding-left:1.3em;display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+.steps li{padding-left:4px;min-width:0}
+.steps li>b:first-child{display:block;font-size:.88rem;margin-bottom:2px}
+.eq{font-family:var(--font-mono);font-size:.9rem;overflow-x:auto}
+.formula{display:block;max-width:100%;background:var(--accent-soft);border-left:3px solid var(--accent);padding:7px 12px;border-radius:0 7px 7px 0;font:500 .95rem var(--font-mono);margin:5px 0;overflow-x:auto;white-space:nowrap}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 2px;line-height:1.15}
+.fr>span:last-child{border-top:1px solid currentColor;padding-top:1px}
+.notes{display:grid;gap:6px;margin-top:10px}
+.note{font-size:.84rem;padding:6px 10px;border-radius:7px;background:var(--panel-2)}
+.note.warn{color:var(--warn)}
+.note.good{color:var(--good)}
+.cmp{width:100%;border-collapse:collapse;font-size:.88rem}
+.cmp th,.cmp td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+.cmp th{color:var(--muted);font-weight:600;font-size:.8rem}
+.tablebox{overflow-x:auto}
+.rbar{display:flex;height:30px;border-radius:7px;overflow:hidden;font:600 .78rem var(--font-mono);margin:6px 0}
+.rbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;min-width:0;transition:flex-basis .25s}
+.rbar .ri{background:#f2994a;color:#2a1600}
+.rbar .re{background:#22a6c7;color:#03222b}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.two-col{grid-template-columns:1fr}}
+/* derivation */
+.deriv{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:16px;align-items:start}
+@media (max-width:900px){.deriv{grid-template-columns:minmax(0,1fr)}}
+.cv svg{width:100%;height:auto;display:block}
+.cv .arw{opacity:.22;transition:opacity .25s}
+.cv .arw.on{opacity:1}
+.cv .gen,.cv .store{opacity:.15;transition:opacity .25s}
+.cv .gen.on,.cv .store.on{opacity:1}
+.dnav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:600 .74rem var(--font-mono);cursor:pointer;padding:0}
+.dots button[aria-current="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.dbody h4{margin:0 0 8px;font-size:1rem}
+.dbody p{margin:0 0 8px}
+/* practice + game */
+.prob p{margin:0 0 8px;max-width:68ch}
+.ptitle{font-size:1.05rem;margin:2px 0 6px}
+.tag{display:inline-block;font-size:.74rem;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:999px;font-weight:600}
+.givens{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:4px;font-family:var(--font-mono);font-size:.86rem}
+.givens li{padding:4px 10px;background:var(--panel-2);border-radius:6px}
+.stagebox{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.ask{font-weight:600;margin-bottom:8px;display:block}
+.choices{display:grid;gap:6px}
+.choices button{text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px 12px;font:500 .9rem var(--font-sans);cursor:pointer}
+.choices button.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent);opacity:1}
+.choices button.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.ansrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ansrow .in{width:220px;max-width:100%}
+.fb{min-height:1.4em;margin-top:8px;font-weight:600}
+.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}.fb.hint{color:var(--muted);font-weight:500}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.psol{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.pchart{margin-top:6px}
+.score{display:flex;gap:16px;font-family:var(--font-mono);font-size:.9rem;flex-wrap:wrap}
+.score b{color:var(--accent)}
+.game-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:16px;align-items:start}
+@media (max-width:980px){.game-grid{grid-template-columns:minmax(0,1fr)}}
+.sheet{display:grid;gap:8px;font-size:.88rem}
+.sheet div{border-bottom:1px dashed var(--line);padding-bottom:6px}
+.sheet b{display:block;font-size:.8rem;color:var(--muted);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap top-in">
+  <div class="brand"><div class="logo" aria-hidden="true"></div><div>
+    <h1>열전달 실험실 3</h1>
+    <p class="sub">비정상상태 열전달 · Biot 수 · 집중계 · 열전도 방정식 · Gurney–Lurie 도표</p>
+    <p class="author">작성자: 강원대학교 식품공정공학연구실 윤원병</p>
+  </div></div>
+  <nav class="tabs" role="tablist" aria-label="화면">
+    <button role="tab" data-view="concept" aria-selected="true">개념 · Biot</button>
+    <button role="tab" data-view="lumped" aria-selected="false">집중계</button>
+    <button role="tab" data-view="equation" aria-selected="false">열전도 방정식</button>
+    <button role="tab" data-view="chart" aria-selected="false">Gurney–Lurie</button>
+    <button role="tab" data-view="multi" aria-selected="false">3차원</button>
+    <button role="tab" data-view="game" aria-selected="false">챌린지</button>
+  </nav>
+  <button id="bigBtn" class="ghost" aria-pressed="false">크게 보기</button>
+</div></header>
+
+<main class="wrap">
+<!-- ================= 1. CONCEPT ================= -->
+<section id="view-concept">
+  <div class="grid">
+    <aside class="rail">
+      <div class="card"><h3>예제 불러오기</h3><div class="chips" id="cPresets"></div></div>
+      <div class="card"><h3>형상</h3><div class="seg" id="cGeo"></div></div>
+      <div class="card"><h3>재료</h3><div id="cMat"></div></div>
+      <div class="card"><h3>크기와 조건</h3><div class="fields" id="cFields"></div></div>
+    </aside>
+    <div class="stage">
+      <div class="card">
+        <canvas id="cScene" aria-label="시간에 따른 내부 온도 분포 애니메이션"></canvas>
+        <div class="scene-bar">
+          <span class="legend"><span id="cLgMin">0 °C</span><i></i><span id="cLgMax">100 °C</span></span>
+          <span>회색 선 = 앞선 시각의 온도 분포</span>
+          <span class="push"></span>
+          <button class="ghost" id="cPause" aria-pressed="false">일시정지</button>
+          <button class="ghost" id="cReset">처음부터</button>
+        </div>
+      </div>
+      <div class="tiles" id="cTiles"></div>
+      <div class="card">
+        <canvas id="cHist" aria-label="중심과 표면 온도의 시간 변화"></canvas>
+        <div class="scene-bar"><span class="lk" style="color:#d64545"><s></s>중심 온도</span><span class="lk" style="color:#2b8ad6"><s class="d"></s>표면 온도</span><span class="lk mut"><s class="o"></s>매체 온도 T∞</span></div>
+      </div>
+      <div class="card">
+        <h2><span class="step-tag">개념 1</span>정상상태와 비정상상태</h2>
+        <div class="tablebox"><table class="cmp">
+          <tr><th></th><th>정상상태 (실험실 1·2)</th><th>비정상상태 (이번 실험실)</th></tr>
+          <tr><td>온도</td><td>위치만의 함수 T(x)</td><td>위치와 시간의 함수 T(x, t)</td></tr>
+          <tr><td>축적항</td><td><span class="eq">∂T/∂t = 0</span>, 들어온 열 = 나간 열</td><td><span class="eq">∂T/∂t ≠ 0</span>, 들어온 열 − 나간 열 = 물체에 저장되는 열</td></tr>
+          <tr><td>필요한 물성</td><td>열전도도 k</td><td>k, 밀도 ρ, 비열 c<sub>p</sub> → 열확산계수 α = k/(ρc<sub>p</sub>)</td></tr>
+          <tr><td>식품 예</td><td>냉장고 벽의 열손실</td><td>데치기, 살균, 냉각, 해동, 굽기</td></tr>
+        </table></div>
+        <p style="margin-top:10px">위 애니메이션에서 물체를 매체에 넣은 순간부터 내부 온도가 계속 변합니다. 열이 표면에서 중심으로 전달되면서 물체에 저장되기 때문입니다. 시간이 충분히 지나면 물체 전체가 매체 온도에 가까워지고, 그때가 새로운 평형(정상) 상태입니다.</p>
+      </div>
+      <div class="card">
+        <h2><span class="step-tag">개념 2</span>Biot 수와 내부저항</h2>
+        <p>열은 매체 → 표면(외부 대류 저항) → 물체 내부(내부 전도 저항)의 순서로 직렬 저항을 지나갑니다. 실험실 1에서 다룬 직렬 열저항과 같은 구조입니다.</p>
+        <span class="formula">Bi = <span class="fr"><span>내부 전도 저항</span><span>외부 대류 저항</span></span> = <span class="fr"><span>L/k</span><span>1/h</span></span> = <span class="fr"><span>h·L</span><span>k</span></span></span>
+        <div id="cRbar"></div>
+        <div class="notes" id="cNotes"></div>
+        <p style="margin-top:10px">온도 분포 그래프의 괄호 두 개를 비교해 보세요. 표면에서 중심까지의 온도차(내부)와 매체에서 표면까지의 온도차(외부)의 비율이 저항의 비율, 곧 Bi를 따라갑니다.</p>
+        <ul class="steps" style="list-style:disc">
+          <li><b>Bi &lt; 0.1</b>내부저항이 매우 작아 물체 안의 온도가 거의 균일합니다. → <b>집중계</b>(내부저항 무시) 해석 사용</li>
+          <li><b>0.1 ≤ Bi &lt; 40 정도</b>내부와 외부 저항이 모두 중요합니다. → <b>Gurney–Lurie 도표</b> 또는 급수해 사용</li>
+          <li><b>Bi → ∞ (m → 0)</b>외부저항이 무시됩니다. 표면 온도가 곧바로 매체 온도가 됩니다 (예: 응축 수증기).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2><span class="step-tag">개념 3</span>Fourier 수: 무차원 시간</h2>
+        <span class="formula">Fo = X = <span class="fr"><span>α t</span><span>x₁²</span></span> = <span class="fr"><span>전도로 전달된 열의 속도</span><span>저장되는 열의 속도</span></span></span>
+        <p>크기가 두 배이면 같은 Fo에 도달하는 시간은 네 배입니다. 그래서 두꺼운 고기는 얇은 고기보다 훨씬 오래 익혀야 합니다. Gurney–Lurie 도표의 가로축 X가 바로 이 값입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. LUMPED ================= -->
+<section id="view-lumped" hidden>
+  <div class="grid">
+    <aside class="rail">
+      <div class="card"><h3>예제 불러오기</h3><div class="chips" id="lPresets"></div></div>
+      <div class="card"><h3>형상</h3><div class="seg" id="lGeo"></div></div>
+      <div class="card"><h3>재료</h3><div id="lMat"></div></div>
+      <div class="card"><h3>크기와 조건</h3><div class="fields" id="lFields"></div></div>
+    </aside>
+    <div class="stage">
+      <div class="card">
+        <canvas id="lScene" aria-label="집중계 가정과 실제 온도 분포 비교, 온도-시간 그래프"></canvas>
+        <div class="scene-bar">
+          <span class="lk" style="color:var(--accent)"><s></s>집중계 식</span>
+          <span class="lk" style="color:#d64545"><s class="d"></s>실제 중심</span>
+          <span class="lk" style="color:#2b8ad6"><s class="o"></s>실제 표면</span>
+          <span class="push"></span>
+          <button class="ghost" id="lPause" aria-pressed="false">일시정지</button>
+        </div>
+      </div>
+      <div class="tiles" id="lTiles"></div>
+      <div class="card"><h2><span class="step-tag">1단계</span>Biot 수로 집중계 적용 여부 판정</h2><ol class="steps" id="lWork1"></ol><div class="notes" id="lNotes"></div></div>
+      <div class="card"><h2><span class="step-tag">2단계</span>집중계 식의 유도</h2>
+        <ol class="steps">
+          <li><b>에너지 수지 (내부 온도 균일 가정)</b>표면으로 들어온 대류 열 = 물체 전체에 저장되는 열
+            <span class="formula">h A (T∞ − T) = ρ c<sub>p</sub> V <span class="fr"><span>dT</span><span>dt</span></span></span></li>
+          <li><b>변수 분리 후 적분 (t = 0에서 T = Tᵢ)</b>
+            <span class="formula">∫ <span class="fr"><span>dT</span><span>T − T∞</span></span> = −<span class="fr"><span>hA</span><span>ρc<sub>p</sub>V</span></span> ∫ dt</span></li>
+          <li><b>결과: 지수 감소</b>
+            <span class="formula"><span class="fr"><span>T − T∞</span><span>Tᵢ − T∞</span></span> = exp(−<span class="fr"><span>hA</span><span>ρc<sub>p</sub>V</span></span> t) = exp(−t/τ) = exp(−Bi·Fo)</span>
+            τ = ρc<sub>p</sub>V/(hA)는 시간상수입니다. t = τ일 때 처음 온도차의 36.8 %가 남습니다. 여기서 Bi와 Fo는 특성길이 L<sub>c</sub> = V/A로 정의합니다.</li>
+        </ol>
+      </div>
+      <div class="card"><h2><span class="step-tag">3단계</span>온도, 시간, 전달된 열량</h2><ol class="steps" id="lWork3"></ol></div>
+      <div class="card"><h2><span class="step-tag alt">연습</span>집중계 문제</h2><div id="lPrac"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. EQUATION ================= -->
+<section id="view-equation" hidden>
+  <div class="stage">
+    <div class="card">
+      <h2><span class="step-tag">유도</span>내부저항이 있는 3차원 비정상상태 열전도 방정식</h2>
+      <div class="deriv">
+        <div class="cv" id="cvBox"></div>
+        <div>
+          <div class="dbody" id="dBody"></div>
+          <div class="dnav">
+            <button class="ghost" id="dPrev">이전</button>
+            <div class="dots" id="dDots"></div>
+            <button class="primary" id="dNext">다음 단계</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h2><span class="step-tag alt">정리</span>좌표계별 형태 (k 일정)</h2>
+        <ol class="steps">
+          <li><b>직교좌표 (x, y, z): 평판, 직육면체</b><span class="formula"><span class="fr"><span>1</span><span>α</span></span><span class="fr"><span>∂T</span><span>∂t</span></span> = <span class="fr"><span>∂²T</span><span>∂x²</span></span> + <span class="fr"><span>∂²T</span><span>∂y²</span></span> + <span class="fr"><span>∂²T</span><span>∂z²</span></span> + <span class="fr"><span>q̇</span><span>k</span></span></span></li>
+          <li><b>원통좌표 (r, φ, z): 원기둥, 통조림</b><span class="formula"><span class="fr"><span>1</span><span>α</span></span><span class="fr"><span>∂T</span><span>∂t</span></span> = <span class="fr"><span>1</span><span>r</span></span><span class="fr"><span>∂</span><span>∂r</span></span>(r<span class="fr"><span>∂T</span><span>∂r</span></span>) + <span class="fr"><span>1</span><span>r²</span></span><span class="fr"><span>∂²T</span><span>∂φ²</span></span> + <span class="fr"><span>∂²T</span><span>∂z²</span></span> + <span class="fr"><span>q̇</span><span>k</span></span></span></li>
+          <li><b>구좌표 (r, θ, φ): 구형 식품</b><span class="formula"><span class="fr"><span>1</span><span>α</span></span><span class="fr"><span>∂T</span><span>∂t</span></span> = <span class="fr"><span>1</span><span>r²</span></span><span class="fr"><span>∂</span><span>∂r</span></span>(r²<span class="fr"><span>∂T</span><span>∂r</span></span>) + <span class="fr"><span>1</span><span>r² sinθ</span></span><span class="fr"><span>∂</span><span>∂θ</span></span>(sinθ<span class="fr"><span>∂T</span><span>∂θ</span></span>) + <span class="fr"><span>1</span><span>r² sin²θ</span></span><span class="fr"><span>∂²T</span><span>∂φ²</span></span> + <span class="fr"><span>q̇</span><span>k</span></span></span></li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2><span class="step-tag alt">의미</span>식이 말하는 것</h2>
+        <ol class="steps">
+          <li><b>곡률이 온도 변화를 만든다</b>1차원에서 ∂T/∂t = α ∂²T/∂x²입니다. 온도 분포가 아래로 오목하게 꺼진 곳(∂²T/∂x² &gt; 0)은 양옆에서 열이 모여 데워지고, 위로 볼록한 곳은 식습니다.</li>
+          <li><b>α가 클수록 빨리 반응한다</b>α = k/(ρc<sub>p</sub>). 금속은 식품보다 α가 수백 배 커서 같은 크기라도 훨씬 빨리 온도가 고르게 됩니다.</li>
+          <li><b>특수한 경우</b>정상상태이면 ∂T/∂t = 0 (실험실 1의 식), 발열이 없으면 q̇ = 0, 대칭 형상이면 r 방향만 남습니다.</li>
+          <li><b>무차원화하면 도표가 된다</b>θ = (T−T∞)/(Tᵢ−T∞), Fo = αt/x₁², Bi = hx₁/k, n = x/x₁로 바꾸면 해는 θ = f(n, Fo, Bi) 하나로 정리됩니다. 이것을 그린 것이 Gurney–Lurie 도표입니다.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="step-tag alt">실험</span>곡률과 온도 변화: 유한차분으로 보는 열전도 방정식</h2>
+      <p>식을 격자로 바꾸면 각 점의 온도 변화는 이웃 두 점과의 차이로 결정됩니다: <span class="eq">dTᵢ/dt ≈ α (Tᵢ₊₁ − 2Tᵢ + Tᵢ₋₁)/Δx²</span>. 그림의 점을 끌어 올리거나 내린 뒤 실행해 보세요. 화살표는 각 점이 데워지는지(빨강) 식는지(파랑)를 보여 줍니다.</p>
+      <canvas id="fdScene" aria-label="유한차분 온도 분포, 점을 끌어서 바꿀 수 있음"></canvas>
+      <div class="scene-bar">
+        <button class="primary" id="fdRun">실행</button>
+        <button class="ghost" id="fdReset">초기 분포</button>
+        <span>양 끝 온도는 고정 (표면 = 매체 온도, Bi → ∞)</span>
+      </div>
+    </div>
+    <div class="card"><h2><span class="step-tag alt">연습</span>열전도 방정식 적용</h2><div id="ePrac"></div></div>
+  </div>
+</section>
+
+<!-- ================= 4. GURNEY–LURIE ================= -->
+<section id="view-chart" hidden>
+  <div class="grid">
+    <aside class="rail">
+      <div class="card"><h3>예제 불러오기</h3><div class="chips" id="gPresets"></div></div>
+      <div class="card"><h3>형상</h3><div class="seg" id="gGeo"></div></div>
+      <div class="card"><h3>구할 값</h3><div class="seg" id="gMode"><button data-v="T">시간 → 온도</button><button data-v="t">온도 → 시간</button></div></div>
+      <div class="card"><h3>재료</h3><div id="gMat"></div></div>
+      <div class="card"><h3>크기와 조건</h3><div class="fields" id="gFields"></div></div>
+      <div class="card"><h3>도표 표시</h3>
+        <div class="seg" id="gFam"><button data-v="n">같은 n, 여러 m</button><button data-v="m">같은 m, 여러 n</button></div>
+        <label class="f" for="gXmax" style="margin-top:10px">가로축 범위 X
+          <select id="gXmax"><option value="auto">자동</option><option value="0.5">0 – 0.5</option><option value="1">0 – 1</option><option value="2">0 – 2</option><option value="4">0 – 4</option><option value="6">0 – 6</option></select></label>
+      </div>
+    </aside>
+    <div class="stage">
+      <div class="card">
+        <canvas id="gChart" aria-label="Gurney–Lurie 도표"></canvas>
+        <div class="scene-bar">
+          <span id="gCap">급수해로 계산한 곡선입니다. 굵은 곡선이 현재 문제의 곡선입니다.</span>
+          <span class="push"></span>
+          <button class="primary" id="gAnim">읽는 과정 보기</button>
+        </div>
+      </div>
+      <div class="tiles" id="gTiles"></div>
+      <div class="card">
+        <h2><span class="step-tag alt">읽는 법</span>Gurney–Lurie 도표 사용 순서</h2>
+        <ol class="steps">
+          <li><b>형상에 맞는 도표 고르기</b>무한평판(양면 가열, x₁ = 반두께), 무한원기둥(x₁ = 반지름), 구(x₁ = 반지름). 한쪽 면이 단열된 평판은 x₁ = 전체 두께로 둡니다.</li>
+          <li><b>세 개의 무차원수 계산</b>
+            <span class="formula">m = <span class="fr"><span>k</span><span>h x₁</span></span> = <span class="fr"><span>1</span><span>Bi</span></span>,&nbsp; n = <span class="fr"><span>x</span><span>x₁</span></span>,&nbsp; X = <span class="fr"><span>α t</span><span>x₁²</span></span></span>
+            n = 0은 중심, n = 1은 표면입니다. h가 매우 크면 m = 0입니다.</li>
+          <li><b>곡선 찾기</b>도표는 n마다 한 묶음입니다. 해당 n 묶음에서 m 곡선을 찾습니다. m이 두 곡선 사이에 있으면 눈으로 보간합니다.</li>
+          <li><b>가로축 X에서 위로, 곡선에서 왼쪽으로</b>세로축은 로그 눈금입니다. 0.1과 1 사이의 눈금은 0.2, 0.3 … 순서로 간격이 점점 좁아집니다.</li>
+          <li><b>온도로 환산</b><span class="formula">Y = <span class="fr"><span>T∞ − T</span><span>T∞ − Tᵢ</span></span> &nbsp;→&nbsp; T = T∞ − Y (T∞ − Tᵢ)</span> 시간을 구할 때는 거꾸로 Y를 먼저 계산하고 곡선에서 X를 읽은 뒤 t = X x₁²/α로 바꿉니다.</li>
+        </ol>
+      </div>
+      <div class="card"><h2><span class="step-tag">풀이</span>현재 조건의 계산 과정</h2><ol class="steps" id="gWork"></ol><div class="notes" id="gNotes"></div></div>
+      <div class="card"><h2><span class="step-tag alt">연습</span>도표 읽기 문제</h2><div id="gPrac"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. MULTI-D ================= -->
+<section id="view-multi" hidden>
+  <div class="grid">
+    <aside class="rail">
+      <div class="card"><h3>예제 불러오기</h3><div class="chips" id="mPresets"></div></div>
+      <div class="card"><h3>형상</h3><div class="seg" id="mGeo"><button data-v="fcyl">유한 원기둥</button><button data-v="brick">직육면체</button></div></div>
+      <div class="card"><h3>재료</h3><div id="mMat"></div></div>
+      <div class="card"><h3>크기와 조건</h3><div class="fields" id="mFields"></div></div>
+      <div class="card"><h3>온도를 볼 위치 (중심 기준)</h3><div class="fields two" id="mPos"></div></div>
+    </aside>
+    <div class="stage">
+      <div class="card">
+        <canvas id="mScene" aria-label="단면 온도 분포"></canvas>
+        <div class="scene-bar">
+          <span class="legend"><span id="mLgMin">0 °C</span><i></i><span id="mLgMax">100 °C</span></span>
+          <label for="mTime" style="flex:1;min-width:160px;display:flex;gap:8px;align-items:center">시각 <input id="mTime" type="range" min="0" max="1000" value="500"></label>
+          <button class="ghost" id="mPlay" aria-pressed="false">재생</button>
+        </div>
+      </div>
+      <div class="tiles" id="mTiles"></div>
+      <div class="card"><h2><span class="step-tag">풀이</span>1차원 해의 곱으로 계산</h2><ol class="steps" id="mWork"></ol></div>
+      <div class="card">
+        <canvas id="mHist" aria-label="중심 온도의 시간 변화 비교"></canvas>
+        <div class="scene-bar" id="mKeys"></div>
+      </div>
+      <div class="card">
+        <h2><span class="step-tag alt">원리</span>왜 곱하면 되는가 (Newman의 법칙)</h2>
+        <p>유한한 물체는 무한한 물체들이 겹친 공간으로 볼 수 있습니다. 예를 들어 통조림은 무한원기둥과 무한평판이 겹친 부분이고, 직육면체는 서로 직교하는 세 무한평판이 겹친 부분입니다.</p>
+        <span class="formula">θ(x, y, z, t) = θ<sub>평판</sub>(x, t) · θ<sub>평판</sub>(y, t) · θ<sub>평판</sub>(z, t),&nbsp; θ<sub>통조림</sub> = θ<sub>원기둥</sub>(r, t) · θ<sub>평판</sub>(z, t)</span>
+        <p>3차원 열전도 방정식에 θ = X(x,t)·Y(y,t)·Z(z,t)를 넣으면 각 인자가 1차원 식을 따로 만족합니다(변수분리). 단, θ를 무차원 온도 (T−T∞)/(Tᵢ−T∞)로 쓸 때만 성립하며 다음 조건이 필요합니다.</p>
+        <ul class="steps" style="list-style:disc"><li>초기 온도가 균일하다</li><li>모든 면이 같은 매체 온도 T∞와 같은 h에 노출된다</li><li>물성이 일정하고 내부 발열이 없다</li></ul>
+        <p style="margin-top:8px">각 방향의 m, n, X는 그 방향의 x₁(반두께, 반지름)로 따로 계산합니다. 도표에서 읽은 Y 값끼리 곱하면 됩니다. 온도 T끼리 곱하는 것은 틀린 방법입니다.</p>
+      </div>
+      <div class="card"><h2><span class="step-tag alt">연습</span>3차원 문제</h2><div id="mPrac"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. GAME ================= -->
+<section id="view-game" hidden>
+  <div class="card" style="margin-bottom:14px;display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap">
+    <div class="score"><span>점수 <b id="gScore">0</b></span><span>연속 정답 <b id="gStreak">0</b></span><span>푼 문제 <b id="gCount">0</b></span></div>
+    <div class="chips" id="gTypes" style="margin-left:auto"></div>
+  </div>
+  <div class="game-grid">
+    <div class="card" id="gamePlay"></div>
+    <div class="stage">
+      <div class="card"><h3>점수 규칙</h3><p class="mut" style="font-size:.88rem;margin:0">풀이 보기 없이 모든 단계를 맞히면 10점과 연속 정답 보너스(연속 수 × 2점)를 얻습니다. 도표를 읽는 단계는 ±12 % 정도의 읽기 오차를 정답으로 인정합니다.</p></div>
+      <div class="card"><h3>공식 요약</h3><div class="sheet">
+        <div><b>Biot 수</b>Bi = h L<sub>c</sub>/k (집중계 판정, L<sub>c</sub> = V/A)</div>
+        <div><b>집중계</b>(T − T∞)/(Tᵢ − T∞) = exp(−hAt/ρc<sub>p</sub>V)</div>
+        <div><b>V/A</b>구 D/6 · 긴 원기둥 D/4 · 정육면체 a/6 · 평판 두께/2</div>
+        <div><b>Gurney–Lurie</b>m = k/(h x₁), n = x/x₁, X = αt/x₁², Y = (T∞ − T)/(T∞ − Tᵢ)</div>
+        <div><b>3차원</b>Y<sub>3D</sub> = Y₁ · Y₂ · Y₃ (각 방향 1차원 해의 곱)</div>
+        <div><b>열확산계수</b>α = k/(ρ c<sub>p</sub>)</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ======================================================================
+   PHYSICS — 급수해 (Gurney–Lurie 곡선은 이 해를 그린 것)
+   ====================================================================== */
+const $ = s => document.querySelector(s);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const FONT = '"IBM Plex Sans KR", system-ui, sans-serif';
+const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+
+// 재료: k [W/m·K], rho [kg/m3], cp [J/kg·K] (식품은 대표값)
+const MATS = {
+  potato:{name:'감자', k:0.554, rho:1100, cp:3520},
+  apple:{name:'사과', k:0.418, rho:840, cp:3600},
+  beef:{name:'소고기 (살코기)', k:0.45, rho:1090, cp:3540},
+  carrot:{name:'당근', k:0.605, rho:1040, cp:3800},
+  cheese:{name:'치즈', k:0.33, rho:1110, cp:2850},
+  gel:{name:'젤 (물 기반 모형 식품)', k:0.58, rho:1000, cp:4180},
+  pea:{name:'완두콩', k:0.50, rho:1080, cp:3300},
+  al:{name:'알루미늄', k:237, rho:2702, cp:903},
+  cu:{name:'구리', k:401, rho:8933, cp:385},
+  steel:{name:'탄소강', k:60.5, rho:7854, cp:434},
+};
+const FOODS = ['potato','apple','beef','carrot','cheese','gel'];
+const GEOS = {slab:'무한평판', cyl:'무한원기둥', sph:'구'};
+const X1NAME = {slab:'반두께 L', cyl:'반지름 R', sph:'반지름 R'};
+
+// Bessel J0, J1 (Numerical Recipes 다항식 근사, 오차 ~1e-8)
+function J0(x){
+  const ax = Math.abs(x);
+  if (ax < 8){ const y = x*x;
+    return (57568490574.0+y*(-13362590354.0+y*(651619640.7+y*(-11214424.18+y*(77392.33017+y*(-184.9052456))))))/
+           (57568490411.0+y*(1029532985.0+y*(9494680.718+y*(59272.64853+y*(267.8532712+y)))));}
+  const z = 8/ax, y = z*z, xx = ax - 0.785398164;
+  const a1 = 1+y*(-0.1098628627e-2+y*(0.2734510407e-4+y*(-0.2073370639e-5+y*0.2093887211e-6)));
+  const a2 = -0.1562499995e-1+y*(0.1430488765e-3+y*(-0.6911147651e-5+y*(0.7621095161e-6-y*0.934935152e-7)));
+  return Math.sqrt(0.636619772/ax)*(Math.cos(xx)*a1 - z*Math.sin(xx)*a2);
+}
+function J1(x){
+  const ax = Math.abs(x);
+  if (ax < 8){ const y = x*x;
+    return x*(72362614232.0+y*(-7895059235.0+y*(242396853.1+y*(-2972611.439+y*(15704.48260+y*(-30.16036606))))))/
+           (144725228442.0+y*(2300535178.0+y*(18583304.74+y*(99447.43394+y*(376.9991397+y)))));}
+  const z = 8/ax, y = z*z, xx = ax - 2.356194491;
+  const a1 = 1+y*(0.183105e-2+y*(-0.3516396496e-4+y*(0.2457520174e-5+y*(-0.240337019e-6))));
+  const a2 = 0.04687499995+y*(-0.2002690873e-3+y*(0.8449199096e-5+y*(-0.88228987e-6+y*0.105787412e-6)));
+  const r = Math.sqrt(0.636619772/ax)*(Math.cos(xx)*a1 - z*Math.sin(xx)*a2);
+  return x < 0 ? -r : r;
+}
+
+// 고유값 방정식 g(ζ) = 0
+//  평판: ζ tanζ = Bi → ζ sinζ − Bi cosζ = 0
+//  원기둥: ζ J1/J0 = Bi → ζ J1 − Bi J0 = 0
+//  구: 1 − ζ cotζ = Bi → (1 − Bi) sinζ − ζ cosζ = 0
+const BIG = 1e9;
+function gEig(geo, Bi, z){
+  if (geo === 'slab') return z*Math.sin(z) - Bi*Math.cos(z);
+  if (geo === 'cyl') return z*J1(z) - Bi*J0(z);
+  return (1 - Bi)*Math.sin(z) - z*Math.cos(z);
+}
+function coef(geo, z){
+  if (geo === 'slab') return 4*Math.sin(z)/(2*z + Math.sin(2*z));
+  if (geo === 'cyl'){ const a = J0(z), b = J1(z); return 2*b/(z*(a*a + b*b)); }
+  return 4*(Math.sin(z) - z*Math.cos(z))/(2*z - Math.sin(2*z));
+}
+function spat(geo, z, n){
+  if (geo === 'slab') return Math.cos(z*n);
+  if (geo === 'cyl') return J0(z*n);
+  return n < 1e-9 ? 1 : Math.sin(z*n)/(z*n);
+}
+let EIG = {}, EIGN = 0;
+function eig(geo, Bi){
+  const B = (!isFinite(Bi) || Bi > 1e8) ? BIG : Math.max(Bi, 1e-6);
+  const key = geo + '|' + B.toPrecision(9);
+  if (EIG[key]) return EIG[key];
+  if (++EIGN > 300){ EIG = {}; EIGN = 0; }
+  const N = 60, out = [], dz = 0.02;
+  let zp = 1e-7, gp = gEig(geo, B, zp);
+  for (let z = dz; out.length < N && z < 400; z += dz){
+    const g = gEig(geo, B, z);
+    if ((gp < 0) !== (g < 0)){
+      let a = zp, b = z, ga = gp;
+      for (let i = 0; i < 55; i++){ const c = (a + b)/2, gc = gEig(geo, B, c); if ((gc < 0) === (ga < 0)){ a = c; ga = gc; } else b = c; }
+      const r = (a + b)/2; out.push({z:r, C:coef(geo, r)});
+    }
+    zp = z; gp = g;
+  }
+  return (EIG[key] = out);
+}
+// 무차원 온도 θ = (T − T∞)/(Tᵢ − T∞) = Gurney–Lurie의 Y
+function theta(geo, Bi, Fo, n){
+  n = clamp(Math.abs(n), 0, 1);
+  const big = !isFinite(Bi) || Bi > 1e8;
+  if (Fo <= 0) return (n >= 1 && big) ? 0 : 1;
+  let s = 0;
+  for (const e of eig(geo, Bi)){
+    const ex = Math.exp(-e.z*e.z*Fo);
+    if (ex < 1e-13) break;
+    s += e.C*ex*spat(geo, e.z, n);
+  }
+  return clamp(s, 0, 1);
+}
+// θ 목표에 도달하는 Fo (θ는 Fo에 대해 감소)
+function foFor(geo, Bi, n, th){
+  if (th >= 1) return 0;
+  let a = 1e-6, b = 1;
+  while (theta(geo, Bi, b, n) > th && b < 1e4) b *= 2;
+  if (b >= 1e4) return NaN;
+  for (let i = 0; i < 70; i++){ const c = Math.sqrt(a*b); if (theta(geo, Bi, c, n) > th) a = c; else b = c; }
+  return Math.sqrt(a*b);
+}
+// 집중계용 특성길이 Lc = V/A
+const LC = {sph:d => d/6, cyl:d => d/4, slab:d => d/2, cube:d => d/6};
+
+/* ======================================================================
+   FORMAT / DRAW HELPERS
+   ====================================================================== */
+const SUPS = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sci(x, s=3){ if (x === 0) return '0'; const e = Math.floor(Math.log10(Math.abs(x))); const m = x/10**e;
+  return `${m.toFixed(s-1)}×10${String(e).split('').map(c => SUPS[c]).join('')}`; }
+function f(x, s=3){ if (!isFinite(x)) return '—'; const a = Math.abs(x); if (a !== 0 && (a >= 1e5 || a < 1e-2)) return sci(x, s); return String(Number(x.toPrecision(s))); }
+function t1(x){ return isFinite(x) ? x.toFixed(1) : '—'; }
+function tm(sec){ if (!isFinite(sec)) return '—'; if (sec < 120) return `${f(sec,3)} s`; if (sec < 7200) return `${f(sec/60,3)} min`; return `${f(sec/3600,3)} h`; }
+const fr = (a, b) => `<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const ri = (a, b) => a + Math.floor(Math.random()*(b - a + 1));
+function tok(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#888'; }
+const HEAT = [[0,[43,108,176]],[0.25,[34,166,199]],[0.5,[242,201,76]],[0.75,[242,153,74]],[1,[214,69,69]]];
+function heat(t){ t = clamp(t, 0, 1);
+  for (let i = 0; i < HEAT.length - 1; i++){ const [a, ca] = HEAT[i], [b, cb] = HEAT[i+1];
+    if (t <= b){ const u = (t - a)/(b - a); return `rgb(${ca.map((c, j) => Math.round(c + u*(cb[j] - c))).join(',')})`; } }
+  return 'rgb(214,69,69)'; }
+const PAL = ['#2b6cb0','#0f8f8a','#7a9a1c','#c98a12','#d0582c','#b0306a','#6b4fb5'];
+
+function fit(canvas, ratio, minH, maxH){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.clientWidth || 640;
+  const H = clamp(Math.round(W*ratio), minH, maxH);
+  canvas.style.height = H + 'px';
+  const d = window.devicePixelRatio || 1;
+  if (canvas.width !== Math.round(W*d) || canvas.height !== Math.round(H*d)){ canvas.width = Math.round(W*d); canvas.height = Math.round(H*d); }
+  ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H);
+  return {ctx, W, H};
+}
+function niceStep(r){ const p = 10**Math.floor(Math.log10(r)); const q = r/p; return (q < 1.5 ? 1 : q < 3 ? 2 : q < 7 ? 5 : 10)*p; }
+function tickTxt(x, st){ const d = Math.max(0, -Math.floor(Math.log10(st) + 1e-9)); return (Math.abs(x) < st*1e-6 ? 0 : x).toFixed(d); }
+// 축과 격자. o = {x0,x1,y0,y1,logy,xlab,ylab}
+function axes(ctx, b, o){
+  const mut = tok('--muted'), line = tok('--line');
+  const sx = x => b.x + (x - o.x0)/(o.x1 - o.x0)*b.w;
+  const L0 = Math.log10(o.y0), L1 = Math.log10(o.y1);
+  const sy = o.logy ? y => b.y + b.h - (Math.log10(Math.max(y, 1e-12)) - L0)/(L1 - L0)*b.h : y => b.y + b.h - (y - o.y0)/(o.y1 - o.y0)*b.h;
+  ctx.save(); ctx.font = `500 11px ${MONO}`; ctx.lineWidth = 1; ctx.strokeStyle = line; ctx.fillStyle = mut;
+  const xs = niceStep((o.x1 - o.x0)/(o.nx || Math.max(3, Math.round(b.w/90))));
+  ctx.textAlign = 'center';
+  for (let x = Math.ceil(o.x0/xs - 1e-9)*xs; x <= o.x1 + xs*1e-6; x += xs){
+    const X = sx(x); ctx.beginPath(); ctx.moveTo(X, b.y); ctx.lineTo(X, b.y + b.h); ctx.stroke(); ctx.fillText(tickTxt(x, xs), X, b.y + b.h + 15); }
+  ctx.textAlign = 'right';
+  if (o.logy){
+    for (let e = Math.floor(L0); e <= Math.ceil(L1); e++) for (let k = 1; k < 10; k++){
+      const y = k*10**e; if (y < o.y0*0.999 || y > o.y1*1.001) continue; const Y = sy(y);
+      ctx.globalAlpha = k === 1 ? 1 : 0.5; ctx.beginPath(); ctx.moveTo(b.x, Y); ctx.lineTo(b.x + b.w, Y); ctx.stroke(); ctx.globalAlpha = 1;
+      if (k === 1 || ((k === 2 || k === 5) && b.h > 240)) ctx.fillText(String(Number(y.toPrecision(1))), b.x - 6, Y + 4); }
+  } else {
+    const ys = niceStep((o.y1 - o.y0)/(o.ny || Math.max(3, Math.round(b.h/50))));
+    for (let y = Math.ceil(o.y0/ys - 1e-9)*ys; y <= o.y1 + ys*1e-6; y += ys){
+      const Y = sy(y); ctx.beginPath(); ctx.moveTo(b.x, Y); ctx.lineTo(b.x + b.w, Y); ctx.stroke(); ctx.fillText(tickTxt(y, ys), b.x - 6, Y + 4); }
+  }
+  ctx.strokeStyle = mut; ctx.strokeRect(b.x, b.y, b.w, b.h);
+  ctx.font = `500 12px ${FONT}`; ctx.fillStyle = mut;
+  if (o.xlab){ ctx.textAlign = 'center'; ctx.fillText(o.xlab, b.x + b.w/2, b.y + b.h + 32); }
+  if (o.ylab){ ctx.save(); ctx.translate(b.x - 42, b.y + b.h/2); ctx.rotate(-Math.PI/2); ctx.textAlign = 'center'; ctx.fillText(o.ylab, 0, 0); ctx.restore(); }
+  ctx.restore();
+  return {sx, sy};
+}
+function poly(ctx, b, pts, col, w=2, dash=[]){
+  ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+  ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.lineJoin = 'round';
+  ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore();
+}
+function txt(ctx, s, x, y, col, al='left', font=`500 12px ${FONT}`){ ctx.font = font; ctx.fillStyle = col; ctx.textAlign = al; ctx.fillText(s, x, y); }
+function arrowL(ctx, x0, y0, x1, y1, col, w=1.8){
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  const a = Math.atan2(y1 - y0, x1 - x0), s = 7;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - s*Math.cos(a - 0.4), y1 - s*Math.sin(a - 0.4)); ctx.lineTo(x1 - s*Math.cos(a + 0.4), y1 - s*Math.sin(a + 0.4)); ctx.closePath(); ctx.fill();
+}
+function bracket(ctx, x, y0, y1, col, label){
+  if (Math.abs(y1 - y0) < 3) return;
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x - 4, y0); ctx.lineTo(x, y0); ctx.lineTo(x, y1); ctx.lineTo(x - 4, y1); ctx.stroke();
+  txt(ctx, label, x + 5, (y0 + y1)/2 + 4, col, 'left', `600 11px ${FONT}`);
+}
+
+/* ---------- Gurney–Lurie chart ---------- */
+// o = {geo, fam:'n'|'m', n, m, Xmax, mark:{X,Y,m,n}, progress, exact:{m,n}}
+const STD_M = [0, 0.5, 1, 2, 4, 6], STD_N = [0, 0.2, 0.4, 0.6, 0.8, 1];
+function drawGL(canvas, o){
+  const {ctx, W, H} = fit(canvas, 0.64, 290, 560);
+  const right = W < 520 ? 50 : 70;
+  const b = {x:60, y:30, w:W - 60 - right, h:H - 30 - 46};
+  const Xmax = o.Xmax || 2;
+  const ax = axes(ctx, b, {x0:0, x1:Xmax, y0:0.001, y1:1, logy:true, xlab:'X = α t / x₁²', ylab:'Y = (T∞ − T) / (T∞ − Tᵢ)'});
+  const ink = tok('--ink'), mut = tok('--muted');
+  const fam = o.fam || 'n';
+  const list = fam === 'n' ? STD_M.map(m => ({m, n:o.n})) : STD_N.map(n => ({m:o.m, n}));
+  const head = fam === 'n' ? `${GEOS[o.geo]} · n = ${o.n}` : `${GEOS[o.geo]} · m = ${f(o.m,3)}`;
+  txt(ctx, head, b.x, 20, ink, 'left', `600 13px ${FONT}`);
+  txt(ctx, fam === 'n' ? '곡선 = m 값' : '곡선 = n 값', b.x + b.w, 20, mut, 'right', `500 11px ${FONT}`);
+  const N = 170, labels = [];
+  list.forEach((c, i) => {
+    const Bi = c.m === 0 ? Infinity : 1/c.m;
+    const pts = []; let last = null;
+    for (let j = 0; j <= N; j++){ const X = Xmax*j/N; const Y = theta(o.geo, Bi, X, c.n); if (Y < 0.00085){ if (j) last = [ax.sx(X), b.y + b.h]; break; } pts.push([ax.sx(X), ax.sy(Y)]); }
+    if (c.n >= 1 && c.m === 0) return; // 표면, h→∞ 는 항상 0
+    const isHL = o.exact && Math.abs(c.m - o.exact.m) < 1e-6 && Math.abs(c.n - o.exact.n) < 1e-6;
+    const col = PAL[i % PAL.length];
+    poly(ctx, b, pts, col, isHL ? 3.4 : 1.6);
+    const end = last || pts[pts.length - 1];
+    if (end) labels.push({x:end[0], y:end[1], s:(fam === 'n' ? 'm=' : 'n=') + f(fam === 'n' ? c.m : c.n, 2), col, bottom:!!last});
+  });
+  // 실제 문제 곡선이 표준 곡선이 아니면 점선으로
+  if (o.exact){
+    const std = list.some(c => Math.abs(c.m - o.exact.m) < 1e-6 && Math.abs(c.n - o.exact.n) < 1e-6);
+    if (!std){ const Bi = o.exact.m === 0 ? Infinity : 1/o.exact.m; const pts = [];
+      for (let j = 0; j <= N; j++){ const X = Xmax*j/N; const Y = theta(o.geo, Bi, X, o.exact.n); if (Y < 0.00085) break; pts.push([ax.sx(X), ax.sy(Y)]); }
+      poly(ctx, b, pts, ink, 2.6, [7, 5]);
+      const e = pts[pts.length - 1]; if (e) labels.push({x:e[0], y:e[1], s:`현재(m=${f(o.exact.m,2)}, n=${f(o.exact.n,2)})`, col:ink, bottom:e[1] > b.y + b.h - 4, cur:true}); }
+  }
+  // 라벨: 오른쪽 끝에 닿은 곡선은 오른쪽 여백에, 바닥으로 나간 곡선은 바닥 위에
+  ctx.font = `600 11px ${MONO}`;
+  const rightL = labels.filter(l => !l.bottom).sort((a, c) => a.y - c.y);
+  let prev = -1e9; for (const l of rightL){ const y = Math.max(l.y + 4, prev + 13); prev = y; ctx.fillStyle = l.col; ctx.textAlign = 'left';
+    ctx.fillText(l.cur ? '현재' : l.s, b.x + b.w + 5, Math.min(y, b.y + b.h)); }
+  const botL = labels.filter(l => l.bottom).sort((a, c) => a.x - c.x);
+  let px = -1e9, row = 0; for (const l of botL){ row = (l.x - px < 46) ? row + 1 : 0; px = l.x; ctx.fillStyle = l.col; ctx.textAlign = 'center';
+    ctx.fillText(l.cur ? '현재' : l.s, l.x, b.y + b.h - 6 - row*12); }
+  // 읽기 표시
+  if (o.mark && isFinite(o.mark.X) && isFinite(o.mark.Y)){
+    const p = o.progress == null ? 1 : o.progress;
+    const X0 = ax.sx(Math.min(o.mark.X, Xmax)), Yv = clamp(o.mark.Y, 0.001, 1), Y0 = ax.sy(Yv), base = b.y + b.h;
+    const acc = tok('--accent'); ctx.save(); ctx.strokeStyle = acc; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    const p1 = clamp(p*2, 0, 1), p2 = clamp(p*2 - 1, 0, 1);
+    const fromBottom = o.mark.dir !== 'Y';
+    ctx.beginPath();
+    if (fromBottom){ ctx.moveTo(X0, base); ctx.lineTo(X0, base + (Y0 - base)*p1); if (p2 > 0){ ctx.moveTo(X0, Y0); ctx.lineTo(X0 + (b.x - X0)*p2, Y0); } }
+    else { ctx.moveTo(b.x, Y0); ctx.lineTo(b.x + (X0 - b.x)*p1, Y0); if (p2 > 0){ ctx.moveTo(X0, Y0); ctx.lineTo(X0, Y0 + (base - Y0)*p2); } }
+    ctx.stroke(); ctx.restore();
+    if (p1 >= 1){ ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(X0, Y0, 5, 0, 7); ctx.fill(); }
+    if (p >= 1){
+      const lab = fromBottom ? `Y ≈ ${f(o.mark.Y, 3)}` : `X ≈ ${f(o.mark.X, 3)}`;
+      ctx.font = `600 12px ${MONO}`; const tw = ctx.measureText(lab).width + 12;
+      const lx = clamp(X0 + 10, b.x + 4, b.x + b.w - tw - 4), ly = clamp(Y0 - 12, b.y + 4, b.y + b.h - 22);
+      ctx.fillStyle = tok('--panel'); ctx.globalAlpha = .92; ctx.fillRect(lx, ly - 2, tw, 20); ctx.globalAlpha = 1;
+      txt(ctx, lab, lx + 6, ly + 13, acc, 'left', `600 12px ${MONO}`);
+    }
+  }
+}
+function niceXmax(X){ for (const v of [0.5, 1, 1.5, 2, 3, 4, 6, 10]) if (v >= X*1.35) return v; return Math.ceil(X*1.4); }
+function animateChart(canvas, opts, dur=1600){
+  const t0 = performance.now();
+  function step(ts){ const p = clamp((ts - t0)/dur, 0, 1); drawGL(canvas, {...opts, progress:p}); if (p < 1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+
+/* ======================================================================
+   SHARED UI BUILDERS
+   ====================================================================== */
+function inField(id, label, unit, val, onChange, step='any'){
+  const l = document.createElement('label'); l.className = 'f'; l.htmlFor = id;
+  l.innerHTML = `${label}<span class="in"><input id="${id}" type="number" step="${step}" value="${val}"><em>${unit}</em></span>`;
+  l.querySelector('input').addEventListener('input', e => { const v = parseFloat(e.target.value); if (isFinite(v)) onChange(v); });
+  return l;
+}
+function setVal(id, v){ const e = document.getElementById(id); if (e) e.value = v; }
+function segBuild(el, items, cur, onPick){
+  el.innerHTML = items.map(([v, s]) => `<button data-v="${v}" aria-pressed="${v === cur}">${s}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); onPick(b.dataset.v); };
+}
+function segSet(el, v){ el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.v === v)); }
+// 재료 블록: 선택 + k, ρ, cp 입력 (수정하면 '직접 입력')
+function matBlock(el, pre, st, onChange, list){
+  const keys = list || Object.keys(MATS);
+  el.innerHTML = `<select id="${pre}Sel">${keys.map(k => `<option value="${k}">${MATS[k].name}</option>`).join('')}<option value="custom">직접 입력</option></select><div class="fields two" id="${pre}Props"></div><div class="props" id="${pre}A"></div>`;
+  const sel = el.querySelector('select'), box = el.querySelector(`#${pre}Props`);
+  const upd = () => { el.querySelector(`#${pre}A`).innerHTML = `α = k/(ρc<sub>p</sub>) = ${sci(st.k/(st.rho*st.cp), 3)} m²/s`; onChange(); };
+  box.append(
+    inField(pre + 'K', '열전도도 k', 'W/m·K', st.k, v => { st.k = v; st.mat = 'custom'; sel.value = 'custom'; upd(); }),
+    inField(pre + 'R', '밀도 ρ', 'kg/m³', st.rho, v => { st.rho = v; st.mat = 'custom'; sel.value = 'custom'; upd(); }),
+    inField(pre + 'C', '비열 cₚ', 'J/kg·K', st.cp, v => { st.cp = v; st.mat = 'custom'; sel.value = 'custom'; upd(); }));
+  box.lastChild.style.gridColumn = '1 / -1';
+  sel.value = st.mat;
+  sel.onchange = () => { if (sel.value !== 'custom') setMat(sel.value); };
+  function setMat(k){ const M = MATS[k]; Object.assign(st, {mat:k, k:M.k, rho:M.rho, cp:M.cp}); sel.value = k; setVal(pre + 'K', M.k); setVal(pre + 'R', M.rho); setVal(pre + 'C', M.cp); upd(); }
+  upd();
+  return {setMat};
+}
+const REDRAW = new Set();
+function presetChips(el, list, apply){
+  el.innerHTML = list.map((p, i) => `<button data-i="${i}">${p.label}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('button'); if (b) apply(list[+b.dataset.i]); };
+}
+function loopScene(name, canvas, draw){
+  let failed = false, last = 0;
+  function frame(ts){
+    if (failed) return; requestAnimationFrame(frame);
+    if (!canvas.getClientRects().length){ last = ts; return; }
+    const dt = Math.min(0.05, (ts - last)/1000 || 0.016); last = ts;
+    try { draw(dt); }
+    catch (err){ failed = true; console.error(`[열전달 실험실 3] ${name} 오류`, err);
+      try { const c = canvas.getContext('2d'); c.setTransform(1,0,0,1,0,0); c.fillStyle = '#fff3f3'; c.fillRect(0,0,canvas.width,canvas.height);
+        c.fillStyle = '#b42828'; c.font = '14px sans-serif'; c.fillText('그림을 그리지 못했습니다: ' + String(err && err.message || err).slice(0, 80), 14, 26); } catch (e){} }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ======================================================================
+   PRACTICE PLAYER (모든 탭의 연습 문제와 챌린지에서 공용)
+   ====================================================================== */
+let PID = 0;
+function parseNum(s){ s = String(s).trim().replace(/\s/g, '').replace(/,/g, '.').replace(/[×x*]10\^?([−-]?\d+)/i, (m, e) => 'e' + e.replace('−', '-')); return parseFloat(s); }
+function Player(root, gen, onDone){
+  const uid = 'p' + (++PID);
+  let P, st, rev, done;
+  function load(){ P = gen(); st = 0; rev = false; done = false; render(); }
+  function render(){
+    root.innerHTML = `<div class="prob"><span class="tag">${P.tag}</span><h3 class="ptitle">${P.title}</h3><p>${P.text}</p>
+      <ul class="givens">${P.givens.map(g => `<li>${g}</li>`).join('')}</ul></div>
+      ${P.chart ? `<canvas class="pchart" aria-label="문제 풀이용 Gurney–Lurie 도표"></canvas><p class="cap">${P.chart.cap || '이 도표에서 값을 읽으세요. 풀이 보기를 누르면 읽는 위치가 표시됩니다.'}</p>` : ''}
+      <div class="pstages"></div>
+      <div class="btns"><button class="ghost" data-a="hint">힌트</button><button class="ghost" data-a="rev">풀이 보기</button><button class="primary" data-a="new">새 문제</button></div>
+      <div class="psol" hidden>${P.solution}</div>`;
+    root.querySelector('[data-a=new]').onclick = load;
+    root.querySelector('[data-a=hint]').onclick = () => { const s = P.stages[st]; const fb = root.querySelector(`#${uid}-fb${st}`); if (fb && s){ fb.className = 'fb hint'; fb.innerHTML = '힌트: ' + (s.hint || '공식 요약을 참고하세요.'); } };
+    root.querySelector('[data-a=rev]').onclick = () => { rev = true; root.querySelector('.psol').hidden = false; stages(); if (P.chart) animateChart(root.querySelector('.pchart'), chartOpts(true)); };
+    stages(); drawChart();
+  }
+  function chartOpts(withMark){ return {...P.chart.opts, mark: withMark ? P.chart.mark : null}; }
+  function drawChart(){ const c = root.querySelector('.pchart'); if (c && P.chart && c.clientWidth) drawGL(c, chartOpts(rev || done)); }
+  function stages(){
+    const box = root.querySelector('.pstages');
+    const upto = (rev || done) ? P.stages.length - 1 : st;
+    box.innerHTML = P.stages.slice(0, upto + 1).map((s, i) => {
+      const fin = i < st || rev || done;
+      const ans = s.type === 'num' ? `${s.show || f(s.ans, 4)}${s.unit ? ' ' + s.unit : ''}` : '';
+      if (s.type === 'choice') return `<div class="stagebox"><span class="ask">${i+1}. ${s.ask}</span><div class="choices">${s.options.map((o, j) =>
+        `<button data-i="${i}" data-j="${j}" ${fin ? 'disabled' : ''} class="${fin && j === s.correct ? 'ok' : ''}">${o}</button>`).join('')}</div><div class="fb" id="${uid}-fb${i}"></div></div>`;
+      return `<div class="stagebox"><span class="ask">${i+1}. ${s.ask}</span><div class="ansrow"><span class="in"><input id="${uid}-in${i}" type="text" inputmode="decimal" autocomplete="off" ${fin ? 'disabled' : ''}><em>${s.unit || ''}</em></span>
+        <button class="primary" data-ok="${i}" ${fin ? 'disabled' : ''}>확인</button></div><div class="fb ${fin ? 'ok' : ''}" id="${uid}-fb${i}">${fin ? '기준 답: ' + ans : ''}</div></div>`;
+    }).join('');
+    box.querySelectorAll('.choices button:not([disabled])').forEach(b => b.onclick = () => {
+      const s = P.stages[+b.dataset.i], fb = root.querySelector(`#${uid}-fb${b.dataset.i}`);
+      if (+b.dataset.j === s.correct){ b.classList.add('ok'); fb.className = 'fb ok'; fb.innerHTML = '정답입니다. ' + (s.why || ''); advance(); }
+      else { b.classList.add('no'); fb.className = 'fb no'; fb.innerHTML = '다시 생각해 보세요.' + (s.whyNo ? ' ' + s.whyNo : ''); }
+    });
+    box.querySelectorAll('[data-ok]').forEach(b => {
+      const i = +b.dataset.ok, inp = root.querySelector(`#${uid}-in${i}`);
+      const go = () => { const s = P.stages[i], v = parseNum(inp.value), fb = root.querySelector(`#${uid}-fb${i}`);
+        if (!isFinite(v)){ fb.className = 'fb no'; fb.textContent = '숫자를 입력하세요. 예: 0.35, 1.4e-7'; return; }
+        const tol = Math.max((s.tol || 0)*Math.abs(s.ans), s.abs || 0);
+        if (Math.abs(v - s.ans) <= tol + 1e-12){ fb.className = 'fb ok'; fb.innerHTML = `정답입니다. (기준 답 ${s.show || f(s.ans, 4)}${s.unit ? ' ' + s.unit : ''})`; advance(); }
+        else { fb.className = 'fb no'; fb.innerHTML = v > s.ans ? '조금 큽니다. 계산을 다시 확인하세요.' : '조금 작습니다. 계산을 다시 확인하세요.'; } };
+      b.onclick = go; inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    });
+  }
+  function advance(){
+    setTimeout(() => {
+      st++;
+      if (st >= P.stages.length){ done = true; root.querySelector('.psol').hidden = false; stages(); if (P.chart) animateChart(root.querySelector('.pchart'), chartOpts(true)); if (onDone) onDone(!rev); }
+      else { stages(); const n = root.querySelector(`#${uid}-in${st}`); if (n) n.focus({preventScroll:true}); }
+    }, 450);
+  }
+  REDRAW.add(drawChart);
+  return {load, redraw:drawChart, started:() => !!P};
+}
+
+/* ======================================================================
+   1. CONCEPT TAB
+   ====================================================================== */
+const C = {geo:'slab', mat:'potato', k:0.554, rho:1100, cp:3520, x1:20, h:500, Ti:20, Tinf:100};
+const cAnim = {Fo:0, paused:false, hold:0, ghosts:[], hist:[], next:0, end:1};
+const C_PRESETS = [
+  {label:'구리 구슬 공기 냉각 (Bi≈0.0002)', geo:'sph', mat:'cu', x1:5, h:20, Ti:150, Tinf:25},
+  {label:'Bi = 0.1 경계', geo:'slab', mat:'potato', x1:5, h:11.08, Ti:20, Tinf:90},
+  {label:'감자 데치기 (Bi≈18)', geo:'slab', mat:'potato', x1:20, h:500, Ti:20, Tinf:100},
+  {label:'사과 냉각 (Bi≈1.4)', geo:'sph', mat:'apple', x1:35, h:17, Ti:25, Tinf:2},
+  {label:'소시지 데치기 (원기둥)', geo:'cyl', mat:'beef', x1:12, h:300, Ti:5, Tinf:80},
+];
+function cDerived(){ const a = C.k/(C.rho*C.cp), x1 = C.x1/1000; return {a, x1m:x1, Bi:C.h*x1/C.k}; }
+function cRestart(){ Object.assign(cAnim, {Fo:0, hold:0, ghosts:[], hist:[], next:0}); }
+function cEndFo(){ const d = cDerived(); const v = foFor(C.geo, d.Bi, 0, 0.03); return isFinite(v) ? v : 5; }
+let cmat;
+function cBuild(){
+  presetChips($('#cPresets'), C_PRESETS, p => { Object.assign(C, {geo:p.geo, x1:p.x1, h:p.h, Ti:p.Ti, Tinf:p.Tinf}); segSet($('#cGeo'), p.geo); cmat.setMat(p.mat); ['x1','h','Ti','Tinf'].forEach(k => setVal('c_' + k, C[k])); cUpdate(); });
+  segBuild($('#cGeo'), [['slab','평판'],['cyl','원기둥'],['sph','구']], C.geo, v => { C.geo = v; $('#c_x1').closest('label').firstChild.textContent = X1NAME[v] + ' x₁'; cUpdate(); });
+  cmat = matBlock($('#cMat'), 'cm', C, () => cUpdate(), ['potato','apple','beef','carrot','cheese','gel','al','cu','steel']);
+  const box = $('#cFields'); box.className = 'fields two';
+  box.append(inField('c_x1', X1NAME[C.geo] + ' x₁', 'mm', C.x1, v => { C.x1 = Math.max(0.1, v); cUpdate(); }),
+    inField('c_h', '대류 열전달계수 h', 'W/m²·K', C.h, v => { C.h = Math.max(0.01, v); cUpdate(); }),
+    inField('c_Ti', '초기 온도 Tᵢ', '°C', C.Ti, v => { C.Ti = v; cUpdate(); }),
+    inField('c_Tinf', '매체 온도 T∞', '°C', C.Tinf, v => { C.Tinf = v; cUpdate(); }));
+  $('#cPause').onclick = e => { cAnim.paused = !cAnim.paused; e.currentTarget.setAttribute('aria-pressed', cAnim.paused); e.currentTarget.textContent = cAnim.paused ? '재생' : '일시정지'; };
+  $('#cReset').onclick = cRestart;
+}
+function cUpdate(){
+  if (!cmat) return;
+  const d = cDerived(); cRestart(); cAnim.end = cEndFo();
+  const lo = Math.min(C.Ti, C.Tinf), hi = Math.max(C.Ti, C.Tinf);
+  $('#cLgMin').textContent = `${t1(lo)} °C`; $('#cLgMax').textContent = `${t1(hi)} °C`;
+  const Rint = d.x1m/C.k, Rext = 1/C.h, share = Rint/(Rint + Rext);
+  const pi = clamp(share*100, 0.5, 99.5);
+  $('#cRbar').innerHTML = `<div class="rbar" role="img" aria-label="내부 저항과 외부 저항 비율"><div class="ri" style="flex-basis:${pi}%">${pi > 18 ? '내부 L/k ' + f(Rint,3) : ''}</div><div class="re" style="flex-basis:${100 - pi}%">${100 - pi > 18 ? '외부 1/h ' + f(Rext,3) : ''}</div></div>
+    <p class="cap" style="margin-top:0">단위 면적당 저항 (m²·K/W): 내부 L/k = ${f(Rint,3)}, 외부 1/h = ${f(Rext,3)} → Bi = ${f(d.Bi,3)}</p>`;
+  const notes = [];
+  if (d.Bi < 0.1) notes.push(['good', `Bi = ${f(d.Bi,3)} &lt; 0.1: 내부 온도가 거의 균일합니다. 집중계 해석을 쓸 수 있습니다.`]);
+  else if (d.Bi < 40) notes.push(['warn', `Bi = ${f(d.Bi,3)}: 내부저항을 무시할 수 없습니다. 중심과 표면의 온도차가 큽니다. Gurney–Lurie 도표를 사용합니다.`]);
+  else notes.push(['warn', `Bi = ${f(d.Bi,3)}: 외부저항이 거의 없습니다. 표면이 곧바로 매체 온도에 도달합니다 (m = 1/Bi ≈ 0).`]);
+  notes.push(['', `참고: 집중계 판정에는 특성길이 L<sub>c</sub> = V/A를 쓰는 것이 원칙입니다. 이 형상의 L<sub>c</sub> = ${f(C.geo === 'slab' ? C.x1 : C.geo === 'cyl' ? C.x1/2 : C.x1/3,3)} mm, 그 기준 Bi = ${f(C.h*(C.geo === 'slab' ? d.x1m : C.geo === 'cyl' ? d.x1m/2 : d.x1m/3)/C.k,3)}.`]);
+  $('#cNotes').innerHTML = notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('');
+}
+function cTiles(Fo){
+  const d = cDerived(); const t = Fo*d.x1m*d.x1m/d.a;
+  const Tc = C.Tinf + theta(C.geo, d.Bi, Fo, 0)*(C.Ti - C.Tinf), Ts = C.Tinf + theta(C.geo, d.Bi, Fo, 1)*(C.Ti - C.Tinf);
+  $('#cTiles').innerHTML = [
+    ['Biot 수 Bi = hx₁/k', f(d.Bi, 3), d.Bi < 0.1 ? '내부 균일' : '내부저항 있음', 'key'],
+    ['Fourier 수 Fo', f(Fo, 3), 'αt/x₁²'],
+    ['경과 시간 t', tm(t), ''],
+    ['중심 / 표면 온도', `${t1(Tc)} / ${t1(Ts)}`, '°C'],
+  ].map(([a, b, c, k]) => `<div class="tile ${k || ''}"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
+}
+let cTileClock = 0;
+function cDraw(dt){
+  const cv = $('#cScene'); const W0 = cv.clientWidth || 640; const stack = W0 < 600;
+  const {ctx, W, H} = fit(cv, stack ? 1.05 : 0.44, 300, 520);
+  const d = cDerived(), end = cAnim.end;
+  if (!cAnim.paused){
+    if (cAnim.Fo >= end){ cAnim.hold += dt; if (cAnim.hold > 2) cRestart(); }
+    else { cAnim.Fo = Math.min(end, cAnim.Fo + dt*end/9); }
+  }
+  const Fo = cAnim.Fo;
+  if (Fo >= cAnim.next && cAnim.ghosts.length < 9){ cAnim.ghosts.push(Fo); cAnim.next = Fo + end/8; }
+  if (!cAnim.hist.length || Fo > cAnim.hist[cAnim.hist.length - 1][0] + end/200 || Fo === 0) cAnim.hist.push([Fo, theta(C.geo, d.Bi, Fo, 0), theta(C.geo, d.Bi, Fo, 1)]);
+  const lo = Math.min(C.Ti, C.Tinf), hi = Math.max(C.Ti, C.Tinf), span = (hi - lo) || 1;
+  const Tof = th => C.Tinf + th*(C.Ti - C.Tinf), col = T => heat((T - lo)/span);
+  const ink = tok('--ink'), mut = tok('--muted');
+  // --- 왼쪽(위): 단면
+  const A = stack ? {x:0, y:0, w:W, h:H*0.45} : {x:0, y:0, w:W*0.4, h:H};
+  ctx.fillStyle = col(C.Tinf); ctx.globalAlpha = .16; ctx.fillRect(A.x + 6, A.y + 6, A.w - 12, A.h - 12); ctx.globalAlpha = 1;
+  const cx = A.x + A.w/2, cy = A.y + A.h/2 + 6, R = Math.min(A.w*0.32, A.h*0.36);
+  if (C.geo === 'slab'){
+    const w2 = R*0.75, h2 = A.h*0.36, S = 60;
+    for (let i = 0; i < S; i++){ const n = -1 + 2*(i + 0.5)/S; ctx.fillStyle = col(Tof(theta('slab', d.Bi, Fo, n))); ctx.fillRect(cx - w2 + 2*w2*i/S, cy - h2, 2*w2/S + 0.6, 2*h2); }
+    ctx.strokeStyle = ink; ctx.lineWidth = 1.2; ctx.strokeRect(cx - w2, cy - h2, 2*w2, 2*h2);
+    txt(ctx, '넓은 평판의 단면 (위아래로 무한)', cx, A.y + 20, mut, 'center');
+    const hot = C.Tinf > C.Ti, ac = hot ? '#d64545' : '#2b8ad6';
+    for (const s of [-1, 1]) for (const yy of [-0.5, 0, 0.5]){ const x0 = cx + s*(w2 + 34), x1 = cx + s*(w2 + 6);
+      hot ? arrowL(ctx, x0, cy + yy*h2, x1, cy + yy*h2, ac) : arrowL(ctx, x1, cy + yy*h2, x0, cy + yy*h2, ac); }
+  } else {
+    const S = 50;
+    for (let i = S; i >= 1; i--){ const n = i/S; ctx.fillStyle = col(Tof(theta(C.geo, d.Bi, Fo, n - 0.5/S))); ctx.beginPath(); ctx.arc(cx, cy, R*n, 0, 7); ctx.fill(); }
+    ctx.strokeStyle = ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+    txt(ctx, C.geo === 'cyl' ? '긴 원기둥의 단면' : '구의 단면', cx, A.y + 20, mut, 'center');
+    const hot = C.Tinf > C.Ti, ac = hot ? '#d64545' : '#2b8ad6';
+    for (let k = 0; k < 8; k++){ const a = k*Math.PI/4 + 0.3, r0 = R + 30, r1 = R + 5;
+      hot ? arrowL(ctx, cx + r0*Math.cos(a), cy + r0*Math.sin(a), cx + r1*Math.cos(a), cy + r1*Math.sin(a), ac)
+          : arrowL(ctx, cx + r1*Math.cos(a), cy + r1*Math.sin(a), cx + r0*Math.cos(a), cy + r0*Math.sin(a), ac); }
+  }
+  txt(ctx, `T∞ = ${t1(C.Tinf)} °C, h = ${f(C.h,3)}`, A.x + 14, A.y + A.h - 14, mut, 'left', `500 11px ${MONO}`);
+  // --- 오른쪽(아래): 온도 분포
+  const B0 = stack ? {x:0, y:H*0.45, w:W, h:H*0.55} : {x:W*0.4, y:0, w:W*0.6, h:H};
+  const b = {x:B0.x + 58, y:B0.y + 26, w:B0.w - 58 - 92, h:B0.h - 26 - 46};
+  const pad = span*0.06;
+  const ax = axes(ctx, b, {x0:-1, x1:1, y0:lo - pad, y1:hi + pad, nx:4, xlab: C.geo === 'slab' ? '위치 x / L  (0 = 중심)' : '위치 r / R  (0 = 중심)', ylab:'온도 T (°C)'});
+  txt(ctx, '온도 분포 T(x, t)', b.x, B0.y + 16, ink, 'left', `600 13px ${FONT}`);
+  const prof = F => { const pts = []; for (let i = 0; i <= 80; i++){ const n = -1 + 2*i/80; pts.push([ax.sx(n), ax.sy(Tof(theta(C.geo, d.Bi, F, n)))]); } return pts; };
+  poly(ctx, b, [[b.x, ax.sy(C.Tinf)], [b.x + b.w, ax.sy(C.Tinf)]], mut, 1.2, [3, 4]);
+  txt(ctx, 'T∞', b.x + b.w - 4, ax.sy(C.Tinf) + (C.Tinf > C.Ti ? -6 : 14), mut, 'right', `500 11px ${MONO}`);
+  for (const g of cAnim.ghosts) poly(ctx, b, prof(g), mut, 1, []);
+  poly(ctx, b, prof(Fo), tok('--accent'), 3);
+  // 내부/외부 온도차 괄호
+  const Tc = Tof(theta(C.geo, d.Bi, Fo, 0)), Ts = Tof(theta(C.geo, d.Bi, Fo, 1));
+  if (Fo > 0){ const bx = b.x + b.w + 10;
+    bracket(ctx, bx, ax.sy(Tc), ax.sy(Ts), '#f2994a', `내부 ${t1(Math.abs(Ts - Tc))}`);
+    bracket(ctx, bx + 2, ax.sy(Ts), ax.sy(C.Tinf), '#22a6c7', `외부 ${t1(Math.abs(C.Tinf - Ts))}`); }
+  // 이력 그래프
+  const hv = $('#cHist'); if (hv.getClientRects().length){
+    const g = fit(hv, 0.3, 190, 280); const hb = {x:58, y:14, w:g.W - 58 - 18, h:g.H - 14 - 44};
+    const tEnd = end*d.x1m*d.x1m/d.a, useMin = tEnd > 180, tsc = useMin ? 60 : 1;
+    const hax = axes(g.ctx, hb, {x0:0, x1:tEnd/tsc, y0:lo - pad, y1:hi + pad, xlab: useMin ? '시간 t (min)' : '시간 t (s)', ylab:'T (°C)'});
+    const toT = F => F*d.x1m*d.x1m/d.a/tsc;
+    poly(g.ctx, hb, [[hb.x, hax.sy(C.Tinf)], [hb.x + hb.w, hax.sy(C.Tinf)]], mut, 1.2, [2, 3]);
+    poly(g.ctx, hb, cAnim.hist.map(p => [hax.sx(toT(p[0])), hax.sy(Tof(p[1]))]), '#d64545', 2.4);
+    poly(g.ctx, hb, cAnim.hist.map(p => [hax.sx(toT(p[0])), hax.sy(Tof(p[2]))]), '#2b8ad6', 2.2, [6, 4]);
+  }
+  cTileClock += dt; if (cTileClock > 0.12 || Fo === 0){ cTileClock = 0; cTiles(Fo); }
+}
+
+/* ======================================================================
+   2. LUMPED TAB
+   ====================================================================== */
+const L = {geo:'sph', mat:'cu', k:401, rho:8933, cp:385, D:10, h:25, Ti:150, Tinf:25, t:10, Tt:50};
+const L_PRESETS = [
+  {label:'구리 구슬 공기 냉각', geo:'sph', mat:'cu', D:10, h:25, Ti:150, Tinf:25, t:10, Tt:50},
+  {label:'완두콩 급속 동결 전 냉각', geo:'sph', mat:'pea', D:8, h:15, Ti:20, Tinf:-30, t:3, Tt:0},
+  {label:'알루미늄 캔 막대', geo:'cyl', mat:'al', D:25, h:40, Ti:20, Tinf:120, t:15, Tt:100},
+  {label:'감자 큐브 데치기 (집중계 실패)', geo:'cube', mat:'potato', D:20, h:500, Ti:20, Tinf:100, t:5, Tt:70},
+  {label:'당근 얇은 슬라이스 건조기', geo:'slab', mat:'carrot', D:3, h:25, Ti:20, Tinf:70, t:5, Tt:60},
+];
+const LGEO = {sph:'구', cyl:'긴 원기둥', slab:'평판', cube:'정육면체'};
+const LSIZE = {sph:'지름 D', cyl:'지름 D', slab:'두께 (양면 노출)', cube:'한 변 a'};
+let lmat; const lAnim = {p:0, paused:false};
+function lCalc(){
+  const a = L.k/(L.rho*L.cp), d = L.D/1000, Lc = LC[L.geo](d), Bi = L.h*Lc/L.k, tau = L.rho*L.cp*Lc/L.h;
+  const x1 = d/2, BiX = L.h*x1/L.k, FoOf = t => a*t/(x1*x1);
+  const exGeo = L.geo === 'cube' ? 'slab' : L.geo;
+  const exact = (t, n) => { const Fo = FoOf(t); if (L.geo === 'cube'){ const c = theta('slab', BiX, Fo, 0); return n === 0 ? c*c*c : theta('slab', BiX, Fo, 1)*c*c; } return theta(exGeo, BiX, Fo, n); };
+  const th = t => Math.exp(-t/tau);
+  const t = L.t*60, thT = th(t), T = L.Tinf + thT*(L.Ti - L.Tinf);
+  const thTarget = (L.Tt - L.Tinf)/(L.Ti - L.Tinf), tT = thTarget > 0 && thTarget < 1 ? -tau*Math.log(thTarget) : NaN;
+  const V = L.geo === 'sph' ? Math.PI*d**3/6 : L.geo === 'cube' ? d**3 : NaN;
+  return {a, d, Lc, Bi, tau, x1, BiX, exact, th, t, thT, T, thTarget, tT, V};
+}
+function lBuild(){
+  presetChips($('#lPresets'), L_PRESETS, p => { Object.assign(L, p); segSet($('#lGeo'), p.geo); lmat.setMat(p.mat); ['D','h','Ti','Tinf','t','Tt'].forEach(k => setVal('l_' + k, L[k])); $('#l_D').closest('label').firstChild.textContent = LSIZE[L.geo]; lUpdate(); });
+  segBuild($('#lGeo'), Object.entries(LGEO), L.geo, v => { L.geo = v; $('#l_D').closest('label').firstChild.textContent = LSIZE[v]; lUpdate(); });
+  lmat = matBlock($('#lMat'), 'lm', L, () => lUpdate());
+  const box = $('#lFields'); box.className = 'fields two';
+  box.append(inField('l_D', LSIZE[L.geo], 'mm', L.D, v => { L.D = Math.max(0.1, v); lUpdate(); }),
+    inField('l_h', '대류 열전달계수 h', 'W/m²·K', L.h, v => { L.h = Math.max(0.01, v); lUpdate(); }),
+    inField('l_Ti', '초기 온도 Tᵢ', '°C', L.Ti, v => { L.Ti = v; lUpdate(); }),
+    inField('l_Tinf', '매체 온도 T∞', '°C', L.Tinf, v => { L.Tinf = v; lUpdate(); }),
+    inField('l_t', '경과 시간 t', 'min', L.t, v => { L.t = Math.max(0, v); lUpdate(); }),
+    inField('l_Tt', '목표 온도 (시간 계산)', '°C', L.Tt, v => { L.Tt = v; lUpdate(); }));
+  $('#lPause').onclick = e => { lAnim.paused = !lAnim.paused; e.currentTarget.setAttribute('aria-pressed', lAnim.paused); e.currentTarget.textContent = lAnim.paused ? '재생' : '일시정지'; };
+}
+function lUpdate(){
+  if (!lmat) return;
+  const r = lCalc(), ok = r.Bi < 0.1;
+  $('#lTiles').innerHTML = [
+    ['특성길이 Lc = V/A', `${f(r.Lc*1000,3)} mm`, LGEO[L.geo]],
+    ['Biot 수 h·Lc/k', f(r.Bi, 3), ok ? '집중계 적용 가능' : '집중계 오차 큼', ok ? 'key' : 'warn'],
+    ['시간상수 τ', tm(r.tau), 'ρcₚLc/h'],
+    [`${f(L.t,3)} min 후 온도`, `${t1(r.T)} °C`, '집중계 식'],
+  ].map(([a, b, c, k]) => `<div class="tile ${k || ''}"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
+  const lcTxt = {sph:`V/A = (πD³/6)/(πD²) = D/6 = ${f(L.D,3)}/6`, cyl:`V/A = (πD²ℓ/4)/(πDℓ) = D/4 = ${f(L.D,3)}/4`, slab:`V/A = (A·두께)/(2A) = 두께/2 = ${f(L.D,3)}/2`, cube:`V/A = a³/(6a²) = a/6 = ${f(L.D,3)}/6`}[L.geo];
+  $('#lWork1').innerHTML = `<li><b>특성길이</b><span class="formula">L<sub>c</sub> = ${lcTxt} = ${f(r.Lc*1000,4)} mm</span></li>
+    <li><b>Biot 수</b><span class="formula">Bi = <span class="fr"><span>h L<sub>c</sub></span><span>k</span></span> = <span class="fr"><span>${f(L.h,4)} × ${f(r.Lc,4)}</span><span>${f(L.k,4)}</span></span> = ${f(r.Bi,3)}</span></li>
+    <li><b>판정</b>${ok ? `Bi = ${f(r.Bi,3)} &lt; 0.1 이므로 내부 온도가 균일하다고 볼 수 있습니다. 집중계 식을 씁니다.` : `Bi = ${f(r.Bi,3)} ≥ 0.1 이므로 내부저항을 무시하면 안 됩니다. 아래 그래프에서 집중계 곡선과 실제 중심·표면 온도가 크게 다른 것을 확인하세요. Gurney–Lurie 도표 탭에서 풀어야 합니다.`}</li>`;
+  const notes = [];
+  if (!ok) notes.push(['warn', '집중계 식은 중심 온도가 실제보다 빨리 변한다고 예측합니다(표면은 반대로 실제보다 느리게). 살균처럼 중심 온도가 중요한 공정에서는 위험한 판단으로 이어집니다.']);
+  if (L.geo === 'cube') notes.push(['', '실제 곡선은 세 방향 평판 해의 곱(3차원 탭 참고)으로 계산했습니다.']);
+  $('#lNotes').innerHTML = notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('');
+  const dT = r.thT*(L.Ti - L.Tinf);
+  const Qtxt = isFinite(r.V) ? `<li><b>전달된 열량 (0 ~ t)</b><span class="formula">Q = ρ V c<sub>p</sub> (Tᵢ − T) = ${f(L.rho,4)} × ${f(r.V,3)} × ${f(L.cp,4)} × (${t1(L.Ti)} − ${t1(r.T)}) = ${f(L.rho*r.V*L.cp*(L.Ti - r.T),3)} J</span>양수는 물체가 열을 잃은 것, 음수는 얻은 것입니다.</li>`
+    : `<li><b>전달된 열량 (단위 부피당)</b><span class="formula">Q/V = ρ c<sub>p</sub> (Tᵢ − T) = ${f(L.rho*L.cp*(L.Ti - r.T),3)} J/m³</span>${L.geo === 'cyl' ? '긴 원기둥은 길이를 곱하면' : '평판은 부피를 곱하면'} 전체 열량이 됩니다.</li>`;
+  $('#lWork3').innerHTML = `<li><b>시간상수</b><span class="formula">τ = <span class="fr"><span>ρ c<sub>p</sub> L<sub>c</sub></span><span>h</span></span> = <span class="fr"><span>${f(L.rho,4)} × ${f(L.cp,4)} × ${f(r.Lc,4)}</span><span>${f(L.h,4)}</span></span> = ${f(r.tau,4)} s</span></li>
+    <li><b>t = ${f(L.t,3)} min = ${f(r.t,4)} s 후 온도</b><span class="formula">T = T∞ + (Tᵢ − T∞) e<sup>−t/τ</sup> = ${t1(L.Tinf)} + (${t1(L.Ti - L.Tinf)}) × e<sup>−${f(r.t/r.tau,3)}</sup> = ${t1(L.Tinf)} + ${t1(dT)} = ${t1(r.T)} °C</span></li>
+    <li><b>${t1(L.Tt)} °C 에 도달하는 시간</b>${isFinite(r.tT) ? `<span class="formula">t = −τ ln<span class="fr"><span>T − T∞</span><span>Tᵢ − T∞</span></span> = −${f(r.tau,4)} × ln(${f(r.thTarget,3)}) = ${f(r.tT,4)} s = ${tm(r.tT)}</span>` : '목표 온도는 Tᵢ와 T∞ 사이에 있어야 합니다.'}</li>${Qtxt}`;
+}
+function lDraw(dt){
+  const cv = $('#lScene'); const W0 = cv.clientWidth || 640, stack = W0 < 620;
+  const {ctx, W, H} = fit(cv, stack ? 1.0 : 0.46, 300, 520);
+  const r = lCalc(), ink = tok('--ink'), mut = tok('--muted'), acc = tok('--accent');
+  const tMax = Math.max(r.t*1.25, isFinite(r.tT) ? r.tT*1.2 : 0, 0.5*r.tau, 1), useMin = tMax > 180, sc = useMin ? 60 : 1;
+  if (!lAnim.paused) lAnim.p = (lAnim.p + dt/9) % 1.15;
+  const tp = Math.min(lAnim.p, 1)*tMax;
+  const lo = Math.min(L.Ti, L.Tinf), hi = Math.max(L.Ti, L.Tinf), span = (hi - lo) || 1, Tof = th => L.Tinf + th*(L.Ti - L.Tinf);
+  const col = T => heat((T - lo)/span);
+  // 물체 두 개
+  const A = stack ? {x:0, y:0, w:W, h:H*0.4} : {x:0, y:0, w:W*0.34, h:H};
+  const R = Math.min(stack ? A.w*0.18 : A.w*0.28, A.h*(stack ? 0.3 : 0.17));
+  const centers = stack ? [[A.w*0.28, A.h*0.52], [A.w*0.72, A.h*0.52]] : [[A.w*0.5, A.h*0.28], [A.w*0.5, A.h*0.73]];
+  const titles = ['집중계 가정 (균일)', '실제 (내부저항 포함)'];
+  const BiX = r.BiX, FoP = r.a*tp/(r.x1*r.x1), exGeo = L.geo === 'cube' ? 'slab' : L.geo;
+  centers.forEach(([cx, cy], k) => {
+    txt(ctx, titles[k], cx, cy - R - 12, k ? ink : acc, 'center', `600 12px ${FONT}`);
+    if (k === 0){ ctx.fillStyle = col(Tof(r.th(tp)));
+      if (L.geo === 'sph' || L.geo === 'cyl'){ ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fill(); } else ctx.fillRect(cx - R, cy - R, 2*R, 2*R); }
+    else if (L.geo === 'sph' || L.geo === 'cyl'){ const S = 36; for (let i = S; i >= 1; i--){ const n = i/S; ctx.fillStyle = col(Tof(theta(exGeo, BiX, FoP, n - 0.5/S))); ctx.beginPath(); ctx.arc(cx, cy, R*n, 0, 7); ctx.fill(); } }
+    else if (L.geo === 'slab'){ const S = 40; for (let i = 0; i < S; i++){ const n = -1 + 2*(i + .5)/S; ctx.fillStyle = col(Tof(theta('slab', BiX, FoP, n))); ctx.fillRect(cx - R + 2*R*i/S, cy - R, 2*R/S + .6, 2*R); } }
+    else { const S = 22; const ys = []; for (let i = 0; i < S; i++) ys.push(theta('slab', BiX, FoP, -1 + 2*(i + .5)/S)); const z0 = theta('slab', BiX, FoP, 0);
+      for (let i = 0; i < S; i++) for (let j = 0; j < S; j++){ ctx.fillStyle = col(Tof(ys[i]*ys[j]*z0)); ctx.fillRect(cx - R + 2*R*i/S, cy - R + 2*R*j/S, 2*R/S + .6, 2*R/S + .6); } }
+    ctx.strokeStyle = ink; ctx.lineWidth = 1.2; ctx.beginPath();
+    if (L.geo === 'sph' || L.geo === 'cyl') ctx.arc(cx, cy, R, 0, 7); else ctx.rect(cx - R, cy - R, 2*R, 2*R); ctx.stroke();
+  });
+  txt(ctx, `t = ${f(tp/sc,3)} ${useMin ? 'min' : 's'}`, stack ? A.w/2 : A.w/2, stack ? A.h - 6 : A.h - 14, mut, 'center', `500 12px ${MONO}`);
+  // 그래프
+  const B0 = stack ? {x:0, y:H*0.4, w:W, h:H*0.6} : {x:W*0.34, y:0, w:W*0.66, h:H};
+  const b = {x:B0.x + 58, y:B0.y + 20, w:B0.w - 58 - 18, h:B0.h - 20 - 46};
+  const pad = span*0.06;
+  const ax = axes(ctx, b, {x0:0, x1:tMax/sc, y0:lo - pad, y1:hi + pad, xlab: useMin ? '시간 t (min)' : '시간 t (s)', ylab:'온도 T (°C)'});
+  const N = 140, lump = [], cen = [], sur = [];
+  for (let i = 0; i <= N; i++){ const t = tMax*i/N, X = ax.sx(t/sc); lump.push([X, ax.sy(Tof(r.th(t)))]); cen.push([X, ax.sy(Tof(r.exact(t, 0)))]); sur.push([X, ax.sy(Tof(r.exact(t, 1)))]); }
+  poly(ctx, b, [[b.x, ax.sy(L.Tinf)], [b.x + b.w, ax.sy(L.Tinf)]], mut, 1, [2, 3]);
+  poly(ctx, b, sur, '#2b8ad6', 2, [2, 3]); poly(ctx, b, cen, '#d64545', 2.2, [7, 4]); poly(ctx, b, lump, acc, 3);
+  const X1 = ax.sx(r.t/sc); poly(ctx, b, [[X1, b.y], [X1, b.y + b.h]], mut, 1, [4, 4]);
+  ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(X1, ax.sy(r.T), 5, 0, 7); ctx.fill();
+  txt(ctx, `${t1(r.T)} °C`, X1 + 8, ax.sy(r.T) - 8, acc, 'left', `600 12px ${MONO}`);
+  if (isFinite(r.tT) && r.tT <= tMax){ const X2 = ax.sx(r.tT/sc); ctx.strokeStyle = mut; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(b.x, ax.sy(L.Tt)); ctx.lineTo(X2, ax.sy(L.Tt)); ctx.lineTo(X2, b.y + b.h); ctx.stroke(); ctx.setLineDash([]);
+    txt(ctx, `목표 ${t1(L.Tt)} °C`, b.x + 6, ax.sy(L.Tt) - 6, mut, 'left', `500 11px ${MONO}`); }
+  const Xp = ax.sx(tp/sc); poly(ctx, b, [[Xp, b.y], [Xp, b.y + b.h]], ink, 1);
+}
+
+/* ======================================================================
+   3. EQUATION TAB — 유도 단계
+   ====================================================================== */
+const DSTEPS = [
+  {t:'미소 체적과 에너지 수지', hl:[], html:`<p>물체 안에서 크기가 dx × dy × dz 인 작은 상자(검사체적)를 생각합니다. 이 상자에 대해 에너지 보존을 씁니다.</p>
+   <span class="formula">(들어오는 열) − (나가는 열) + (내부 발열) = (저장되는 에너지의 증가)</span><p>정상상태(실험실 1)에서는 오른쪽이 0이었습니다. 비정상상태에서는 오른쪽 항이 살아 있습니다.</p>`},
+  {t:'x 방향으로 들어오고 나가는 열', hl:['ax'], html:`<p>x 위치의 면으로 q<sub>x</sub>가 들어오고, x + dx 위치의 면으로 q<sub>x+dx</sub>가 나갑니다. 나가는 열을 Taylor 전개로 씁니다.</p>
+   <span class="formula">q<sub>x+dx</sub> = q<sub>x</sub> + <span class="fr"><span>∂q<sub>x</sub></span><span>∂x</span></span> dx</span>
+   <span class="formula">순유입(x) = q<sub>x</sub> − q<sub>x+dx</sub> = −<span class="fr"><span>∂q<sub>x</sub></span><span>∂x</span></span> dx</span>`},
+  {t:'Fourier 법칙 대입', hl:['ax'], html:`<p>x 면의 면적은 dy·dz 입니다. Fourier 법칙에서 열은 온도가 낮아지는 방향으로 흐릅니다.</p>
+   <span class="formula">q<sub>x</sub> = −k (dy dz) <span class="fr"><span>∂T</span><span>∂x</span></span></span>
+   <span class="formula">순유입(x) = <span class="fr"><span>∂</span><span>∂x</span></span>(k <span class="fr"><span>∂T</span><span>∂x</span></span>) dx dy dz</span>`},
+  {t:'y, z 방향도 같은 방법으로', hl:['ax','ay','az'], html:`<p>y 면(면적 dx·dz)과 z 면(면적 dx·dy)에서도 똑같이 정리하면 세 방향의 순유입을 모두 얻습니다.</p>
+   <span class="formula">순유입 = [<span class="fr"><span>∂</span><span>∂x</span></span>(k<span class="fr"><span>∂T</span><span>∂x</span></span>) + <span class="fr"><span>∂</span><span>∂y</span></span>(k<span class="fr"><span>∂T</span><span>∂y</span></span>) + <span class="fr"><span>∂</span><span>∂z</span></span>(k<span class="fr"><span>∂T</span><span>∂z</span></span>)] dx dy dz</span>`},
+  {t:'내부 발열과 저장항', hl:['gen','store'], html:`<p>단위 부피당 발열률을 q̇ (W/m³)라 하면 발열량은 q̇ dx dy dz 입니다. 전자레인지 가열, 저장 중 과일의 호흡열이 예입니다.</p>
+   <p>상자의 질량은 ρ dx dy dz 이므로 저장되는 에너지의 증가 속도는 다음과 같습니다.</p>
+   <span class="formula">저장 = ρ c<sub>p</sub> <span class="fr"><span>∂T</span><span>∂t</span></span> dx dy dz</span>`},
+  {t:'모두 합치고 dx dy dz로 나누기', hl:['ax','ay','az','gen','store'], html:`<p>에너지 수지에 대입하고 부피 dx dy dz로 나누면 일반 열전도 방정식이 됩니다.</p>
+   <span class="formula">ρ c<sub>p</sub> <span class="fr"><span>∂T</span><span>∂t</span></span> = <span class="fr"><span>∂</span><span>∂x</span></span>(k<span class="fr"><span>∂T</span><span>∂x</span></span>) + <span class="fr"><span>∂</span><span>∂y</span></span>(k<span class="fr"><span>∂T</span><span>∂y</span></span>) + <span class="fr"><span>∂</span><span>∂z</span></span>(k<span class="fr"><span>∂T</span><span>∂z</span></span>) + q̇</span>
+   <p>왼쪽이 축적(비정상)항이고, 오른쪽의 미분항이 내부 전도, 즉 내부저항을 나타내는 부분입니다.</p>`},
+  {t:'k가 일정할 때: 열확산계수 α', hl:['ax','ay','az','gen','store'], html:`<p>k가 위치에 따라 변하지 않으면 미분 밖으로 나오고 ρc<sub>p</sub>로 나눌 수 있습니다.</p>
+   <span class="formula"><span class="fr"><span>∂T</span><span>∂t</span></span> = α (<span class="fr"><span>∂²T</span><span>∂x²</span></span> + <span class="fr"><span>∂²T</span><span>∂y²</span></span> + <span class="fr"><span>∂²T</span><span>∂z²</span></span>) + <span class="fr"><span>q̇</span><span>ρc<sub>p</sub></span></span> = α∇²T + <span class="fr"><span>q̇</span><span>ρc<sub>p</sub></span></span>,&nbsp; α = <span class="fr"><span>k</span><span>ρ c<sub>p</sub></span></span></span>
+   <p>α의 단위는 m²/s 입니다. 식품은 대략 1.2 ~ 1.6 × 10⁻⁷ m²/s, 알루미늄은 9.7 × 10⁻⁵ m²/s 입니다.</p>`},
+  {t:'경계조건과 초기조건', hl:['ax'], html:`<p>방정식을 풀려면 조건이 필요합니다. Gurney–Lurie 도표가 가정하는 조건은 다음과 같습니다.</p>
+   <ul class="steps" style="list-style:disc"><li><b>초기조건</b>t = 0 에서 물체 전체가 Tᵢ로 균일</li><li><b>대칭조건</b>중심에서 ∂T/∂x = 0 (단열면과 같음)</li><li><b>대류 경계조건</b>표면에서 −k ∂T/∂x = h (T<sub>s</sub> − T∞): 표면으로 전도된 열 = 매체로 대류된 열</li></ul>`},
+  {t:'무차원화: 도표가 되는 이유', hl:['ax','ay','az','store'], html:`<p>θ = (T − T∞)/(Tᵢ − T∞), n = x/x₁, Fo = αt/x₁², Bi = hx₁/k 로 바꾸면 1차원 식과 조건이 다음과 같이 됩니다.</p>
+   <span class="formula"><span class="fr"><span>∂θ</span><span>∂Fo</span></span> = <span class="fr"><span>∂²θ</span><span>∂n²</span></span>,&nbsp; θ(n,0) = 1,&nbsp; <span class="fr"><span>∂θ</span><span>∂n</span></span>|<sub>n=1</sub> = −Bi·θ</span>
+   <p>따라서 해는 θ = f(n, Fo, Bi) 하나로 정해집니다. Gurney–Lurie 도표는 Y = θ, X = Fo, m = 1/Bi, n 으로 이 해를 그린 것입니다. 평판 해는 다음 급수입니다.</p>
+   <span class="formula">θ = Σ C<sub>i</sub> e<sup>−ζᵢ² Fo</sup> cos(ζᵢ n),&nbsp; ζᵢ tan ζᵢ = Bi,&nbsp; C<sub>i</sub> = <span class="fr"><span>4 sin ζᵢ</span><span>2ζᵢ + sin 2ζᵢ</span></span></span>`},
+];
+let dIdx = 0;
+function cvSVG(){
+  // 등각 투상 상자. 앞-아래-왼쪽 = (130,230), x→ 오른쪽, z→ 위, y→ 오른쪽 위(깊이)
+  const P = (x, y, z) => [130 + x*150 + y*70, 230 - z*130 - y*52];
+  const pt = p => p.join(',');
+  const face = (pts, fill) => `<polygon points="${pts.map(p => pt(P(...p))).join(' ')}" fill="${fill}" stroke="var(--ink)" stroke-width="1.2"/>`;
+  const arr = (cls, x0, y0, x1, y1, lab, lx, ly) => `<g class="arw ${cls}"><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="currentColor" stroke-width="3" marker-end="url(#ah)"/><text x="${lx}" y="${ly}" fill="currentColor" font-size="15" font-family="var(--font-mono)" font-weight="600">${lab}</text></g>`;
+  const fc = P(0, 0.5, 0.5), bc = P(1, 0.5, 0.5);
+  return `<svg viewBox="0 0 470 340" role="img" aria-label="미소 검사체적 dx dy dz와 각 방향 열 흐름">
+  <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+  <g class="store" id="cvStore">${face([[0,0,0],[1,0,0],[1,0,1],[0,0,1]], 'rgba(242,153,74,.5)')}</g>
+  ${face([[0,0,0],[1,0,0],[1,0,1],[0,0,1]], 'var(--panel-2)')}
+  ${face([[1,0,0],[1,1,0],[1,1,1],[1,0,1]], 'var(--scene)')}
+  ${face([[0,0,1],[1,0,1],[1,1,1],[0,1,1]], 'var(--accent-soft)')}
+  <g class="store" id="cvStore2"><polygon points="${[[0,0,0],[1,0,0],[1,0,1],[0,0,1]].map(p => pt(P(...p))).join(' ')}" fill="rgba(242,153,74,.35)"/><text x="${P(0.5,0,0.5)[0]}" y="${P(0.5,0,0.5)[1]+5}" text-anchor="middle" font-size="13" fill="var(--ink)" font-family="var(--font-sans)">ρcₚ ∂T/∂t</text></g>
+  <g class="gen" style="color:#d64545">${[[.3,.5,.35],[.6,.5,.6],[.45,.5,.8],[.75,.5,.3]].map(p => { const q = P(...p); return `<circle cx="${q[0]}" cy="${q[1]}" r="4" fill="currentColor"/>`; }).join('')}<text x="${P(1,1,1)[0]+6}" y="${P(1,1,1)[1]-6}" font-size="13" fill="currentColor" font-family="var(--font-mono)">q̇ (발열)</text></g>
+  <g style="color:#d64545">${arr('ax', fc[0]-95, fc[1], fc[0]-6, fc[1], 'q<tspan baseline-shift="sub" font-size="11">x</tspan>', fc[0]-95, fc[1]-10)}${arr('ax', bc[0]+6, bc[1], bc[0]+90, bc[1], 'q<tspan baseline-shift="sub" font-size="11">x+dx</tspan>', bc[0]+18, bc[1]-10)}</g>
+  <g style="color:#2b8ad6">${(() => { const a = P(0.5, 0, 0.5); const c = P(0.5, 1, 0.5); return arr('ay', a[0]-48, a[1]+38, a[0]-8, a[1]+8, 'q<tspan baseline-shift="sub" font-size="11">y</tspan>', a[0]-82, a[1]+50) + arr('ay', c[0]+6, c[1]-4, c[0]+46, c[1]-34, 'q<tspan baseline-shift="sub" font-size="11">y+dy</tspan>', c[0]+30, c[1]-40); })()}</g>
+  <g style="color:#2a7a3b">${(() => { const a = P(0.5, .5, 0), c = P(.5, .5, 1); return arr('az', a[0], a[1]+62, a[0], a[1]+8, 'q<tspan baseline-shift="sub" font-size="11">z</tspan>', a[0]+8, a[1]+58) + arr('az', c[0], c[1]-6, c[0], c[1]-58, 'q<tspan baseline-shift="sub" font-size="11">z+dz</tspan>', c[0]+8, c[1]-46); })()}</g>
+  <g font-family="var(--font-mono)" font-size="13" fill="var(--muted)">
+   <text x="${(P(0,0,0)[0]+P(1,0,0)[0])/2}" y="${P(0,0,0)[1]+20}" text-anchor="middle">dx</text>
+   <text x="${P(1,0.5,0)[0]+12}" y="${P(1,0.5,0)[1]+14}">dy</text>
+   <text x="${P(0,0,0.5)[0]-26}" y="${P(0,0,0.5)[1]+4}">dz</text></g>
+  </svg>`;
+}
+function dRender(){
+  const s = DSTEPS[dIdx];
+  $('#dBody').innerHTML = `<h4>${dIdx + 1}. ${s.t}</h4>${s.html}`;
+  document.querySelectorAll('#cvBox .arw').forEach(g => g.classList.toggle('on', s.hl.some(h => g.classList.contains(h))));
+  document.querySelectorAll('#cvBox .gen').forEach(g => g.classList.toggle('on', s.hl.includes('gen')));
+  document.querySelectorAll('#cvBox .store').forEach(g => g.classList.toggle('on', s.hl.includes('store')));
+  $('#dDots').querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-current', i === dIdx));
+  $('#dPrev').disabled = dIdx === 0; $('#dNext').textContent = dIdx === DSTEPS.length - 1 ? '처음으로' : '다음 단계';
+}
+function eBuild(){
+  $('#cvBox').innerHTML = cvSVG();
+  $('#dDots').innerHTML = DSTEPS.map((s, i) => `<button aria-label="${i+1}단계: ${s.t}">${i + 1}</button>`).join('');
+  $('#dDots').onclick = e => { const b = e.target.closest('button'); if (!b) return; dIdx = [...$('#dDots').children].indexOf(b); dRender(); };
+  $('#dPrev').onclick = () => { dIdx = Math.max(0, dIdx - 1); dRender(); };
+  $('#dNext').onclick = () => { dIdx = dIdx === DSTEPS.length - 1 ? 0 : dIdx + 1; dRender(); };
+  dRender();
+}
+/* 유한차분 실험 */
+const FD = {N:13, T:[], run:false, drag:-1, t:0};
+function fdInit(){ FD.T = []; for (let i = 0; i < FD.N; i++){ const x = i/(FD.N - 1); FD.T.push(i === 0 || i === FD.N - 1 ? 100 : 20 + 50*Math.exp(-(((x - 0.35)/0.12)**2))); } FD.t = 0; FD.run = false; $('#fdRun').textContent = '실행'; }
+function fdBuild(){
+  fdInit();
+  $('#fdRun').onclick = () => { FD.run = !FD.run; $('#fdRun').textContent = FD.run ? '멈춤' : '실행'; };
+  $('#fdReset').onclick = fdInit;
+  const cv = $('#fdScene');
+  const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.addEventListener('pointerdown', e => { const [x] = pos(e); const g = FD.geom; if (!g) return; const i = Math.round((x - g.b.x)/g.b.w*(FD.N - 1)); if (i > 0 && i < FD.N - 1){ FD.drag = i; cv.setPointerCapture(e.pointerId); fdMove(e); } });
+  cv.addEventListener('pointermove', e => { if (FD.drag > 0) fdMove(e); });
+  cv.addEventListener('pointerup', () => FD.drag = -1);
+  function fdMove(e){ const [, y] = pos(e); const g = FD.geom; FD.T[FD.drag] = clamp(g.y0 + (g.b.y + g.b.h - y)/g.b.h*(g.y1 - g.y0), 0, 110); }
+  cv.style.touchAction = 'none';
+}
+function fdDraw(dt){
+  const cv = $('#fdScene'); const {ctx, W, H} = fit(cv, 0.36, 220, 340);
+  const b = {x:58, y:16, w:W - 58 - 18, h:H - 16 - 44}; FD.geom = {b, y0:0, y1:110};
+  const ax = axes(ctx, b, {x0:0, x1:1, y0:0, y1:110, nx:4, xlab:'위치 x / 두께', ylab:'T (°C)'});
+  if (FD.run){ const r = 0.4; for (let s = 0; s < 3; s++){ const T = FD.T.slice(); for (let i = 1; i < FD.N - 1; i++) T[i] = FD.T[i] + r*(FD.T[i+1] - 2*FD.T[i] + FD.T[i-1]); FD.T = T; } FD.t += dt; }
+  const pts = FD.T.map((T, i) => [ax.sx(i/(FD.N - 1)), ax.sy(T)]);
+  poly(ctx, b, pts, tok('--accent'), 2.4);
+  pts.forEach(([x, y], i) => {
+    if (i > 0 && i < FD.N - 1){ const c = FD.T[i+1] - 2*FD.T[i] + FD.T[i-1]; const L2 = clamp(c*1.6, -40, 40);
+      if (Math.abs(L2) > 2) arrowL(ctx, x, y, x, y - L2, c > 0 ? '#d64545' : '#2b8ad6', 2); }
+    ctx.fillStyle = heat(FD.T[i]/100); ctx.strokeStyle = tok('--ink'); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, i === 0 || i === FD.N - 1 ? 5 : 7, 0, 7); ctx.fill(); ctx.stroke();
+  });
+  txt(ctx, '점을 위아래로 끌어 보세요', b.x + b.w - 6, b.y + 16, tok('--muted'), 'right');
+}
+
+/* ======================================================================
+   4. GURNEY–LURIE TAB
+   ====================================================================== */
+const G = {geo:'slab', mode:'T', mat:'potato', k:0.554, rho:1100, cp:3520, x1:20, x:0, h:100, Ti:20, Tinf:100, t:30, Tt:70, fam:'n', Xmax:'auto'};
+const G_PRESETS = [
+  {label:'감자 판 데치기 (중심)', geo:'slab', mode:'T', mat:'potato', x1:20, x:0, h:27.7, Ti:20, Tinf:100, t:60},
+  {label:'소시지 중심 70 °C 시간', geo:'cyl', mode:'t', mat:'beef', x1:12, x:0, h:300, Ti:5, Tinf:80, Tt:70},
+  {label:'사과 냉각 (구)', geo:'sph', mode:'T', mat:'apple', x1:35, x:0, h:12, Ti:25, Tinf:2, t:120},
+  {label:'증기 가열 (m = 0)', geo:'slab', mode:'T', mat:'gel', x1:15, x:6, h:1e6, Ti:20, Tinf:121, t:20},
+  {label:'치즈 블록 표면 근처', geo:'slab', mode:'T', mat:'cheese', x1:25, x:20, h:13.2, Ti:4, Tinf:30, t:90},
+];
+let gmat;
+function gCalc(){
+  const a = G.k/(G.rho*G.cp), x1 = G.x1/1000, n = clamp(Math.abs(G.x)/G.x1, 0, 1), m = G.k/(G.h*x1), Bi = 1/m;
+  if (G.mode === 'T'){ const t = G.t*60, X = a*t/(x1*x1), Y = theta(G.geo, Bi, X, n); return {a, x1, n, m, Bi, t, X, Y, T:G.Tinf - Y*(G.Tinf - G.Ti)}; }
+  const Y = (G.Tinf - G.Tt)/(G.Tinf - G.Ti); const X = (Y > 0 && Y < 1) ? foFor(G.geo, Bi, n, Y) : NaN;
+  return {a, x1, n, m, Bi, Y, X, t:X*x1*x1/a, T:G.Tt};
+}
+function gBuild(){
+  presetChips($('#gPresets'), G_PRESETS, p => { Object.assign(G, p); segSet($('#gGeo'), p.geo); segSet($('#gMode'), p.mode); gmat.setMat(p.mat); ['x1','x','h','Ti','Tinf','t','Tt'].forEach(k => setVal('g_' + k, G[k])); gFieldsVis(); gUpdate(); });
+  segBuild($('#gGeo'), [['slab','무한평판'],['cyl','원기둥'],['sph','구']], G.geo, v => { G.geo = v; gFieldsVis(); gUpdate(); });
+  segBuild($('#gMode'), [['T','시간 → 온도'],['t','온도 → 시간']], G.mode, v => { G.mode = v; gFieldsVis(); gUpdate(); });
+  segBuild($('#gFam'), [['n','같은 n, 여러 m'],['m','같은 m, 여러 n']], G.fam, v => { G.fam = v; gUpdate(); });
+  gmat = matBlock($('#gMat'), 'gm', G, () => gUpdate());
+  const box = $('#gFields'); box.className = 'fields two';
+  box.append(inField('g_x1', X1NAME[G.geo] + ' x₁', 'mm', G.x1, v => { G.x1 = Math.max(0.1, v); gUpdate(); }),
+    inField('g_x', '위치 x (중심에서)', 'mm', G.x, v => { G.x = Math.max(0, v); gUpdate(); }),
+    inField('g_h', '열전달계수 h', 'W/m²·K', G.h, v => { G.h = Math.max(0.01, v); gUpdate(); }),
+    inField('g_Ti', '초기 온도 Tᵢ', '°C', G.Ti, v => { G.Ti = v; gUpdate(); }),
+    inField('g_Tinf', '매체 온도 T∞', '°C', G.Tinf, v => { G.Tinf = v; gUpdate(); }),
+    inField('g_t', '시간 t', 'min', G.t, v => { G.t = Math.max(0, v); gUpdate(); }),
+    inField('g_Tt', '목표 온도 T', '°C', G.Tt, v => { G.Tt = v; gUpdate(); }));
+  $('#gXmax').onchange = e => { G.Xmax = e.target.value; gUpdate(); };
+  $('#gAnim').onclick = () => { const o = gChartOpts(true); animateChart($('#gChart'), o); };
+  gFieldsVis();
+}
+function gFieldsVis(){
+  $('#g_t').closest('label').hidden = G.mode !== 'T'; $('#g_Tt').closest('label').hidden = G.mode !== 't';
+  $('#g_x1').closest('label').firstChild.textContent = X1NAME[G.geo] + ' x₁';
+}
+function snapStd(v, arr){ let best = arr[0]; for (const a of arr) if (Math.abs(a - v) < Math.abs(best - v)) best = a; return best; }
+function gChartOpts(mark){
+  const r = gCalc();
+  const Xmax = G.Xmax === 'auto' ? niceXmax(isFinite(r.X) ? Math.max(r.X, 0.3) : 1) : +G.Xmax;
+  const nShow = G.fam === 'n' ? snapStd(r.n, STD_N) : r.n;
+  return {geo:G.geo, fam:G.fam, n:nShow, m:r.m < 0.02 ? 0 : r.m, Xmax, exact:{m:r.m < 0.0005 ? 0 : r.m, n:r.n},
+    mark: mark && isFinite(r.X) && isFinite(r.Y) ? {X:r.X, Y:r.Y, m:r.m, n:r.n, dir: G.mode === 'T' ? 'X' : 'Y'} : null};
+}
+function gUpdate(){
+  if (!gmat) return;
+  const r = gCalc();
+  const c = $('#gChart'); if (c.clientWidth) drawGL(c, gChartOpts(true));
+  $('#gTiles').innerHTML = [
+    ['m = k/(h x₁)', f(r.m, 3), `Bi = ${f(r.Bi,3)}`],
+    ['n = x/x₁', f(r.n, 3), r.n === 0 ? '중심' : r.n === 1 ? '표면' : ''],
+    ['X = αt/x₁²', f(r.X, 3), G.mode === 't' ? '도표에서 읽음' : ''],
+    [G.mode === 'T' ? '온도 T' : '시간 t', G.mode === 'T' ? `${t1(r.T)} °C` : tm(r.t), `Y = ${f(r.Y,3)}`, 'key'],
+  ].map(([a, b, s, k]) => `<div class="tile ${k || ''}"><span>${a}</span><b>${b}</b><small>${s}</small></div>`).join('');
+  const s1 = `<li><b>열확산계수</b><span class="formula">α = <span class="fr"><span>k</span><span>ρ c<sub>p</sub></span></span> = <span class="fr"><span>${f(G.k,4)}</span><span>${f(G.rho,4)} × ${f(G.cp,4)}</span></span> = ${sci(r.a,3)} m²/s</span></li>
+    <li><b>m 과 n</b><span class="formula">m = <span class="fr"><span>k</span><span>h x₁</span></span> = <span class="fr"><span>${f(G.k,4)}</span><span>${f(G.h,4)} × ${f(r.x1,4)}</span></span> = ${f(r.m,3)},&nbsp; n = <span class="fr"><span>x</span><span>x₁</span></span> = <span class="fr"><span>${f(G.x,3)}</span><span>${f(G.x1,3)}</span></span> = ${f(r.n,3)}</span></li>`;
+  const s2 = G.mode === 'T'
+    ? `<li><b>X 계산</b><span class="formula">X = <span class="fr"><span>α t</span><span>x₁²</span></span> = <span class="fr"><span>${sci(r.a,3)} × ${f(r.t,4)}</span><span>(${f(r.x1,4)})²</span></span> = ${f(r.X,3)}</span></li>
+       <li><b>도표 읽기</b>${GEOS[G.geo]} 도표, n = ${f(r.n,2)} 묶음, m = ${f(r.m,2)} 곡선에서 X = ${f(r.X,3)} 일 때 <b>Y ≈ ${f(r.Y,3)}</b> (급수해 값)</li>
+       <li><b>온도 환산</b><span class="formula">T = T∞ − Y(T∞ − Tᵢ) = ${t1(G.Tinf)} − ${f(r.Y,3)} × (${t1(G.Tinf - G.Ti)}) = ${t1(r.T)} °C</span></li>`
+    : `<li><b>Y 계산</b><span class="formula">Y = <span class="fr"><span>T∞ − T</span><span>T∞ − Tᵢ</span></span> = <span class="fr"><span>${t1(G.Tinf)} − ${t1(G.Tt)}</span><span>${t1(G.Tinf)} − ${t1(G.Ti)}</span></span> = ${f(r.Y,3)}</span></li>
+       <li><b>도표 읽기</b>m = ${f(r.m,2)}, n = ${f(r.n,2)} 곡선에서 Y = ${f(r.Y,3)} 인 점의 X를 읽습니다: <b>X ≈ ${f(r.X,3)}</b></li>
+       <li><b>시간 환산</b><span class="formula">t = <span class="fr"><span>X x₁²</span><span>α</span></span> = <span class="fr"><span>${f(r.X,3)} × (${f(r.x1,4)})²</span><span>${sci(r.a,3)}</span></span> = ${f(r.t,4)} s = ${tm(r.t)}</span></li>`;
+  $('#gWork').innerHTML = s1 + s2;
+  const notes = [];
+  if (r.m > 6) notes.push(['warn', `m = ${f(r.m,3)} 은 보통 도표의 곡선 범위(0 ~ 6)를 넘습니다. Bi = ${f(r.Bi,3)} 이므로 ${r.Bi < 0.1 ? '집중계 식을 쓰는 편이 정확합니다.' : '보간에 주의하세요.'}`]);
+  if (!STD_M.some(v => Math.abs(v - r.m) < 0.03) && r.m <= 6) notes.push(['', `m = ${f(r.m,3)} 은 표준 곡선 사이에 있습니다. 점선(현재)이 실제 곡선이며, 손으로 풀 때는 이웃한 두 곡선 사이를 눈으로 보간합니다.`]);
+  if (G.fam === 'n' && Math.abs(snapStd(r.n, STD_N) - r.n) > 1e-6) notes.push(['', `n = ${f(r.n,3)} 에 가장 가까운 n = ${snapStd(r.n, STD_N)} 묶음을 보여 줍니다. 점선이 정확한 n의 곡선입니다.`]);
+  if (G.mode === 't' && !(r.Y > 0 && r.Y < 1)) notes.push(['warn', '목표 온도는 Tᵢ와 T∞ 사이여야 합니다.']);
+  if (isFinite(r.X) && r.X < 0.02) notes.push(['warn', 'X가 매우 작습니다. 도표 읽기 오차가 커지는 영역입니다.']);
+  $('#gNotes').innerHTML = notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('');
+}
+
+/* ======================================================================
+   5. MULTI-DIMENSIONAL TAB
+   ====================================================================== */
+const M = {geo:'fcyl', mat:'gel', k:0.58, rho:1000, cp:4180, D:76, Hh:110, A:60, B:40, Cc:30, h:300, Ti:20, Tinf:121, t:60, p1:0, p2:0, p3:0};
+const M_PRESETS = [
+  {label:'통조림 레토르트 살균', geo:'fcyl', mat:'gel', D:76, Hh:110, h:300, Ti:20, Tinf:121, t:60},
+  {label:'짧은 소시지 토막', geo:'fcyl', mat:'beef', D:24, Hh:40, h:400, Ti:5, Tinf:80, t:15},
+  {label:'두부 블록 냉각', geo:'brick', mat:'gel', A:80, B:60, Cc:30, h:50, Ti:70, Tinf:4, t:40},
+  {label:'치즈 블록 숙성고', geo:'brick', mat:'cheese', A:100, B:100, Cc:50, h:10, Ti:20, Tinf:8, t:180},
+];
+let mmat; const mAnim = {play:false, u:0.5};
+function mDirs(){
+  const a = M.k/(M.rho*M.cp);
+  if (M.geo === 'fcyl'){ const R = M.D/2000, Lh = M.Hh/2000;
+    return {a, dirs:[{name:'반지름 방향 (무한원기둥)', g:'cyl', x1:R, pos:M.p1/1000, sym:'r', lab:'R'}, {name:'높이 방향 (무한평판)', g:'slab', x1:Lh, pos:M.p2/1000, sym:'z', lab:'L = H/2'}]}; }
+  return {a, dirs:[{name:'x 방향 평판', g:'slab', x1:M.A/2000, pos:M.p1/1000, sym:'x', lab:'a = A/2'}, {name:'y 방향 평판', g:'slab', x1:M.B/2000, pos:M.p2/1000, sym:'y', lab:'b = B/2'}, {name:'z 방향 평판', g:'slab', x1:M.Cc/2000, pos:M.p3/1000, sym:'z', lab:'c = C/2'}]};
+}
+function mTheta(t, center){
+  const {a, dirs} = mDirs(); let th = 1; const parts = [];
+  for (const d of dirs){ const n = center ? 0 : clamp(Math.abs(d.pos)/d.x1, 0, 1), m = M.k/(M.h*d.x1), X = a*t/(d.x1*d.x1), Y = theta(d.g, 1/m, X, n); th *= Y; parts.push({...d, n, m, X, Y}); }
+  return {th, parts};
+}
+function mBuild(){
+  presetChips($('#mPresets'), M_PRESETS, p => { Object.assign(M, p, {p1:0, p2:0, p3:0}); segSet($('#mGeo'), p.geo); mmat.setMat(p.mat); mFields(); mUpdate(); });
+  segBuild($('#mGeo'), [['fcyl','유한 원기둥'],['brick','직육면체']], M.geo, v => { M.geo = v; M.p1 = M.p2 = M.p3 = 0; mFields(); mUpdate(); });
+  mmat = matBlock($('#mMat'), 'mm', M, () => mUpdate());
+  $('#mTime').oninput = e => { mAnim.u = +e.target.value/1000; mAnim.play = false; $('#mPlay').setAttribute('aria-pressed', false); $('#mPlay').textContent = '재생'; mTilesAt(); };
+  $('#mPlay').onclick = e => { mAnim.play = !mAnim.play; if (mAnim.play && mAnim.u >= 0.999) mAnim.u = 0; e.currentTarget.setAttribute('aria-pressed', mAnim.play); e.currentTarget.textContent = mAnim.play ? '멈춤' : '재생'; };
+  mFields();
+}
+function mFields(){
+  const box = $('#mFields'); box.className = 'fields two'; box.innerHTML = '';
+  if (M.geo === 'fcyl') box.append(inField('m_D', '지름 D', 'mm', M.D, v => { M.D = Math.max(1, v); mUpdate(); }), inField('m_H', '높이 H', 'mm', M.Hh, v => { M.Hh = Math.max(1, v); mUpdate(); }));
+  else box.append(inField('m_A', '가로 A', 'mm', M.A, v => { M.A = Math.max(1, v); mUpdate(); }), inField('m_B', '세로 B', 'mm', M.B, v => { M.B = Math.max(1, v); mUpdate(); }), inField('m_C', '높이 C', 'mm', M.Cc, v => { M.Cc = Math.max(1, v); mUpdate(); }));
+  box.append(inField('m_h', '열전달계수 h', 'W/m²·K', M.h, v => { M.h = Math.max(0.01, v); mUpdate(); }),
+    inField('m_Ti', '초기 온도 Tᵢ', '°C', M.Ti, v => { M.Ti = v; mUpdate(); }),
+    inField('m_Tinf', '매체 온도 T∞', '°C', M.Tinf, v => { M.Tinf = v; mUpdate(); }),
+    inField('m_t', '시간 t', 'min', M.t, v => { M.t = Math.max(0.01, v); mUpdate(); }));
+  const pb = $('#mPos'); pb.innerHTML = '';
+  if (M.geo === 'fcyl') pb.append(inField('m_p1', '반지름 위치 r', 'mm', M.p1, v => { M.p1 = Math.max(0, v); mUpdate(); }), inField('m_p2', '높이 위치 z', 'mm', M.p2, v => { M.p2 = v; mUpdate(); }));
+  else pb.append(inField('m_p1', 'x', 'mm', M.p1, v => { M.p1 = v; mUpdate(); }), inField('m_p2', 'y', 'mm', M.p2, v => { M.p2 = v; mUpdate(); }), inField('m_p3', 'z', 'mm', M.p3, v => { M.p3 = v; mUpdate(); }));
+}
+function mUpdate(){
+  if (!mmat) return;
+  const t = M.t*60, P = mTheta(t, false), Cn = mTheta(t, true);
+  const lo = Math.min(M.Ti, M.Tinf), hi = Math.max(M.Ti, M.Tinf);
+  $('#mLgMin').textContent = `${t1(lo)} °C`; $('#mLgMax').textContent = `${t1(hi)} °C`;
+  const Tof = th => M.Tinf + th*(M.Ti - M.Tinf);
+  const rows = P.parts.map((d, i) => `<li><b>${d.name}: x₁ = ${d.lab} = ${f(d.x1*1000,3)} mm</b>
+     <span class="formula">m = <span class="fr"><span>${f(M.k,3)}</span><span>${f(M.h,4)} × ${f(d.x1,4)}</span></span> = ${f(d.m,3)},&nbsp; n = ${f(d.n,3)},&nbsp; X = <span class="fr"><span>${sci(mDirs().a,3)} × ${f(t,4)}</span><span>(${f(d.x1,4)})²</span></span> = ${f(d.X,3)} &nbsp;→&nbsp; Y${i+1} = ${f(d.Y,3)}</span></li>`).join('');
+  $('#mWork').innerHTML = rows + `<li><b>곱하기 (선택한 위치)</b><span class="formula">Y = ${P.parts.map((d, i) => `Y${i+1}`).join(' × ')} = ${P.parts.map(d => f(d.Y,3)).join(' × ')} = ${f(P.th,3)}</span></li>
+    <li><b>온도 환산</b><span class="formula">T = T∞ − Y(T∞ − Tᵢ) = ${t1(M.Tinf)} − ${f(P.th,3)} × (${t1(M.Tinf - M.Ti)}) = ${t1(Tof(P.th))} °C</span>
+    중심 온도는 ${t1(Tof(Cn.th))} °C 입니다 (각 방향 n = 0). 비교: 가장 짧은 방향만 고려한 1차원 해의 중심 온도는 ${t1(Tof(Math.min(...Cn.parts.map(d => d.Y))))} °C 입니다.</li>`;
+  mAnim.u = clamp(mAnim.u, 0, 1); mTilesAt();
+}
+function mTmax(){ return M.t*60*1.6; }
+function mTilesAt(){
+  const t = M.t*60, P = mTheta(t, false), Cn = mTheta(t, true), Tof = th => M.Tinf + th*(M.Ti - M.Tinf);
+  const tu = mAnim.u*mTmax(), Cu = mTheta(tu, true);
+  $('#mTiles').innerHTML = [
+    [`중심 온도 (t = ${f(M.t,3)} min)`, `${t1(Tof(Cn.th))} °C`, '', 'key'],
+    ['선택 위치 온도', `${t1(Tof(P.th))} °C`, `Y = ${f(P.th,3)}`],
+    ['그림의 시각', tm(tu), `중심 ${t1(Tof(Cu.th))} °C`],
+    ['방향별 Y (중심)', Cn.parts.map(d => f(d.Y,2)).join(' · '), '곱 = Y₃D'],
+  ].map(([a, b, s, k]) => `<div class="tile ${k || ''}"><span>${a}</span><b>${b}</b><small>${s}</small></div>`).join('');
+}
+let mTileClock = 0;
+function mDraw(dt){
+  if (mAnim.play){ mAnim.u = Math.min(1, mAnim.u + dt/8); $('#mTime').value = Math.round(mAnim.u*1000); if (mAnim.u >= 1){ mAnim.play = false; $('#mPlay').setAttribute('aria-pressed', false); $('#mPlay').textContent = '재생'; } mTileClock += dt; if (mTileClock > .15){ mTileClock = 0; mTilesAt(); } }
+  const cv = $('#mScene'); const {ctx, W, H} = fit(cv, 0.5, 280, 480);
+  const {a, dirs} = mDirs(), tu = mAnim.u*mTmax();
+  const lo = Math.min(M.Ti, M.Tinf), hi = Math.max(M.Ti, M.Tinf), span = (hi - lo) || 1, Tof = th => M.Tinf + th*(M.Ti - M.Tinf);
+  const ink = tok('--ink'), mut = tok('--muted');
+  // 단면: 가로 = 첫 방향(전체 폭 2x1), 세로 = 마지막 방향
+  const dh = dirs[0], dv = dirs[dirs.length - 1];
+  const extra = dirs.length === 3 ? theta('slab', M.h*dirs[1].x1/M.k, a*tu/(dirs[1].x1**2), 0) : 1; // 직육면체: y = 0 면의 y방향 인자
+  const wR = dh.x1*2, hR = dv.x1*2, s = Math.min((W*0.62)/wR, (H - 70)/hR);
+  const w = wR*s, h = hR*s, ox = W*0.36 - w/2 + 20, oy = (H - h)/2 + 6;
+  ctx.fillStyle = heat((M.Tinf - lo)/span); ctx.globalAlpha = .14; ctx.fillRect(8, 8, W - 16, H - 16); ctx.globalAlpha = 1;
+  const S = 48, hx = [], vy = [];
+  for (let i = 0; i < S; i++){ const n = -1 + 2*(i + .5)/S; hx.push(theta(dh.g, M.h*dh.x1/M.k, a*tu/(dh.x1**2), n)); vy.push(theta(dv.g, M.h*dv.x1/M.k, a*tu/(dv.x1**2), n)); }
+  for (let i = 0; i < S; i++) for (let j = 0; j < S; j++){ ctx.fillStyle = heat((Tof(hx[i]*vy[j]*extra) - lo)/span); ctx.fillRect(ox + w*i/S, oy + h*j/S, w/S + .7, h/S + .7); }
+  ctx.strokeStyle = ink; ctx.lineWidth = 1.4; ctx.strokeRect(ox, oy, w, h);
+  txt(ctx, M.geo === 'fcyl' ? '통조림 세로 단면 (r–z 면, 중심축 포함)' : '직육면체 단면 (x–z 면, y = 0)', ox, oy - 10, mut, 'left');
+  // 선택 위치 표시
+  const px = ox + w/2 + (M.geo === 'fcyl' ? M.p1 : M.p1)/1000*s, pz = oy + h/2 - (M.geo === 'fcyl' ? M.p2 : M.p3)/1000*s;
+  ctx.strokeStyle = ink; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ox + w/2, oy); ctx.lineTo(ox + w/2, oy + h); ctx.moveTo(ox, oy + h/2); ctx.lineTo(ox + w, oy + h/2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = tok('--panel'); ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(clamp(px, ox, ox + w), clamp(pz, oy, oy + h), 5, 0, 7); ctx.fill(); ctx.stroke();
+  // 오른쪽 범례 텍스트
+  const rx = Math.min(ox + w + 26, W - 170);
+  const Cu = mTheta(tu, true);
+  [`t = ${tm(tu)}`, `중심 T = ${t1(Tof(Cu.th))} °C`, ...Cu.parts.map((d, i) => `Y${i+1}(${d.sym}) = ${f(d.Y,3)}`), `Y = ${f(Cu.th,3)}`].forEach((sx, i) => txt(ctx, sx, rx, oy + 18 + i*20, i < 2 ? ink : mut, 'left', `${i < 2 ? 600 : 500} 12px ${MONO}`));
+  // 이력
+  const hv = $('#mHist'); if (hv.getClientRects().length){
+    const g = fit(hv, 0.34, 210, 320); const hb = {x:58, y:14, w:g.W - 58 - 18, h:g.H - 14 - 44};
+    const tMax = mTmax(), useMin = tMax > 180, sc = useMin ? 60 : 1, pad = span*.06;
+    const hax = axes(g.ctx, hb, {x0:0, x1:tMax/sc, y0:lo - pad, y1:hi + pad, xlab: useMin ? '시간 t (min)' : '시간 t (s)', ylab:'중심 온도 (°C)'});
+    const cols = ['#2b8ad6', '#0f8f8a', '#7a9a1c'];
+    const series = dirs.map((d, k) => ({pts:[], col:cols[k], dash:[5, 4]})); const prod = [];
+    for (let i = 0; i <= 120; i++){ const t = tMax*i/120, X = hax.sx(t/sc); const c = mTheta(t, true); c.parts.forEach((d, k) => series[k].pts.push([X, hax.sy(Tof(d.Y))])); prod.push([X, hax.sy(Tof(c.th))]); }
+    series.forEach(s2 => poly(g.ctx, hb, s2.pts, s2.col, 1.8, s2.dash)); poly(g.ctx, hb, prod, '#d64545', 3);
+    const Xu = hax.sx(tu/sc); poly(g.ctx, hb, [[Xu, hb.y], [Xu, hb.y + hb.h]], ink, 1);
+    const Xt = hax.sx(M.t*60/sc); poly(g.ctx, hb, [[Xt, hb.y], [Xt, hb.y + hb.h]], mut, 1, [4, 4]);
+  }
+  const keys = `<span class="lk" style="color:#d64545"><s></s>${M.geo === 'fcyl' ? '통조림' : '직육면체'} 중심 (곱)</span>` + dirs.map((d, k) => `<span class="lk" style="color:${['#2b8ad6','#0f8f8a','#7a9a1c'][k]}"><s class="d"></s>${d.name}만 고려</span>`).join('');
+  if ($('#mKeys').dataset.k !== keys){ $('#mKeys').innerHTML = keys; $('#mKeys').dataset.k = keys; }
+}
+
+/* ======================================================================
+   PROBLEM GENERATORS
+   ====================================================================== */
+function fmtT(x){ return `${t1(x)} °C`; }
+function genLumped(){
+  const sc = rnd([
+    {obj:'구리 구슬', mat:'cu', shape:'sph', size:[6, 10, 15, 20], h:[15, 25, 50, 100], env:'25 °C 공기', Ti:[150, 200, 250], Tinf:25},
+    {obj:'알루미늄 막대 (길이가 매우 김)', mat:'al', shape:'cyl', size:[10, 20, 30], h:[20, 50, 120], env:'120 °C 수증기·공기 혼합 분위기', Ti:[20], Tinf:120},
+    {obj:'탄소강 볼', mat:'steel', shape:'sph', size:[10, 20, 30], h:[20, 40, 60], env:'30 °C 공기', Ti:[200, 300], Tinf:30},
+    {obj:'완두콩', mat:'pea', shape:'sph', size:[6, 8, 10], h:[5, 10, 20], env:'−30 °C 냉동 공기', Ti:[20], Tinf:-30},
+    {obj:'감자 정육면체', mat:'potato', shape:'cube', size:[10, 20, 30], h:[100, 300, 800], env:'100 °C 끓는 물', Ti:[20], Tinf:100},
+    {obj:'당근 슬라이스 (넓은 판, 양면 노출)', mat:'carrot', shape:'slab', size:[2, 3, 5], h:[10, 20, 40], env:'70 °C 열풍', Ti:[20], Tinf:70},
+  ]);
+  const Mt = MATS[sc.mat], d = rnd(sc.size), h = rnd(sc.h), Ti = rnd(sc.Ti), Tinf = sc.Tinf;
+  const Lc = LC[sc.shape](d/1000), Bi = h*Lc/Mt.k, tau = Mt.rho*Mt.cp*Lc/h, ok = Bi < 0.1;
+  const sizeName = {sph:'지름', cyl:'지름', cube:'한 변', slab:'두께'}[sc.shape];
+  const stages = [
+    {type:'num', ask:'Biot 수 Bi = h·L<sub>c</sub>/k 를 구하세요 (L<sub>c</sub> = V/A).', ans:Bi, tol:0.04, show:f(Bi,3), hint:'V/A: 구 D/6, 긴 원기둥 D/4, 정육면체 a/6, 양면 평판 두께/2. 길이는 m로 바꾸세요.'},
+    {type:'choice', ask:'집중계(내부저항 무시) 해석을 쓸 수 있습니까?', options:['예. Bi < 0.1 이라 내부 온도가 균일하다고 볼 수 있다', '아니오. Bi ≥ 0.1 이라 내부저항을 고려해야 한다'], correct: ok ? 0 : 1, hint:'기준은 Bi < 0.1 입니다.'},
+  ];
+  let sol = `<ol class="steps"><li><b>특성길이</b>L<sub>c</sub> = ${f(Lc*1000,4)} mm = ${f(Lc,4)} m</li><li><b>Biot 수</b>Bi = ${f(h,4)} × ${f(Lc,4)} / ${f(Mt.k,4)} = ${f(Bi,3)} → ${ok ? '0.1보다 작으므로 집중계 사용' : '0.1 이상이므로 집중계 사용 불가'}</li>`;
+  if (ok){
+    const askTime = Math.random() < 0.4;
+    if (!askTime){
+      const t = Math.max(1, Math.round(tau*rnd([0.5, 1, 1.5, 2, 3]))); const tShow = t >= 300 ? `${f(t/60,3)} min` : `${t} s`;
+      const T = Tinf + (Ti - Tinf)*Math.exp(-t/tau);
+      stages.push({type:'num', ask:`${tShow} 후의 온도를 구하세요.`, ans:T, abs:Math.max(0.4, 0.025*Math.abs(T - Tinf)), unit:'°C', show:t1(T), hint:'τ = ρcₚL<sub>c</sub>/h 를 구한 뒤 T = T∞ + (Tᵢ − T∞)e<sup>−t/τ</sup>.'});
+      sol += `<li><b>시간상수</b>τ = ${f(Mt.rho,4)} × ${f(Mt.cp,4)} × ${f(Lc,4)} / ${f(h,4)} = ${f(tau,4)} s</li><li><b>온도</b>T = ${Tinf} + (${Ti - Tinf}) e<sup>−${f(t,4)}/${f(tau,4)}</sup> = ${t1(T)} °C</li>`;
+      return {tag:'집중계', title:`${sc.obj}의 온도 변화`, text:`${Ti} °C 인 ${sc.obj}를 ${sc.env}에 놓았습니다. ${tShow} 후의 온도를 구하려고 합니다.`,
+        givens:[`${sizeName} = ${d} mm`, `h = ${h} W/m²·K, T∞ = ${Tinf} °C, Tᵢ = ${Ti} °C`, `k = ${Mt.k} W/m·K, ρ = ${Mt.rho} kg/m³, cₚ = ${Mt.cp} J/kg·K`], stages, solution:sol + '</ol>'};
+    }
+    const th = rnd([0.2, 0.3, 0.4, 0.5]); const Tt = Math.round(Tinf + th*(Ti - Tinf)); const thx = (Tt - Tinf)/(Ti - Tinf); const t = -tau*Math.log(thx);
+    stages.push({type:'num', ask:`${Tt} °C 가 되는 데 걸리는 시간을 구하세요.`, ans:t, tol:0.03, unit:'s', show:f(t,4), hint:'t = −τ ln[(T − T∞)/(Tᵢ − T∞)]'});
+    sol += `<li><b>시간상수</b>τ = ${f(tau,4)} s</li><li><b>시간</b>t = −${f(tau,4)} × ln(${f(thx,3)}) = ${f(t,4)} s = ${tm(t)}</li>`;
+    return {tag:'집중계', title:`${sc.obj}가 ${Tt} °C 가 될 때까지`, text:`${Ti} °C 인 ${sc.obj}를 ${sc.env}에 놓았습니다.`,
+      givens:[`${sizeName} = ${d} mm`, `h = ${h} W/m²·K, T∞ = ${Tinf} °C, Tᵢ = ${Ti} °C`, `k = ${Mt.k} W/m·K, ρ = ${Mt.rho} kg/m³, cₚ = ${Mt.cp} J/kg·K`], stages, solution:sol + '</ol>'};
+  }
+  stages.push({type:'choice', ask:'중심 온도를 구하려면 어떤 방법을 써야 합니까?', options:['집중계 식 T = T∞ + (Tᵢ − T∞)e^(−t/τ)', 'Gurney–Lurie 도표 (m = k/hx₁, n = x/x₁, X = αt/x₁²)', '정상상태 직렬 열저항 식'], correct:1, why:'내부저항이 있으므로 위치에 따른 온도 분포를 주는 도표(급수해)를 씁니다.'});
+  sol += `<li><b>방법</b>내부 온도 분포가 있으므로 Gurney–Lurie 도표 (또는 급수해)를 써야 합니다.</li>`;
+  return {tag:'집중계 판정', title:`${sc.obj}: 집중계를 쓸 수 있을까?`, text:`${Ti} °C 인 ${sc.obj}를 ${sc.env}에 넣었습니다.`,
+    givens:[`${sizeName} = ${d} mm`, `h = ${h} W/m²·K, T∞ = ${Tinf} °C`, `k = ${Mt.k} W/m·K, ρ = ${Mt.rho} kg/m³, cₚ = ${Mt.cp} J/kg·K`], stages, solution:sol + '</ol>'};
+}
+function genChart(){
+  const geo = rnd(['slab', 'slab', 'cyl', 'sph']); const mk = rnd(FOODS), Mt = MATS[mk], a = Mt.k/(Mt.rho*Mt.cp);
+  const x1mm = rnd(geo === 'slab' ? [10, 15, 20, 25] : [15, 20, 25, 30, 40]), x1 = x1mm/1000;
+  const mStd = rnd([0.5, 1, 1, 2, 2, 4]); const h = Number((Mt.k/(mStd*x1)).toPrecision(3)); const m = Mt.k/(h*x1);
+  const n = geo === 'slab' ? rnd([0, 0, 0, 0.4, 0.6]) : rnd([0, 0, 0, 0.6]); const xmm = Number((n*x1mm).toFixed(1));
+  const heating = Math.random() < 0.6; const Ti = heating ? rnd([5, 10, 15, 20]) : rnd([60, 70, 80, 90]); const Tinf = heating ? rnd([80, 90, 100]) : rnd([2, 4, 5]);
+  const cands = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5].filter(X => { const Y = theta(geo, 1/m, X, n); return Y > 0.03 && Y < 0.75; });
+  let X = rnd(cands.length ? cands : [0.3]); let tsec = X*x1*x1/a; const tmin = tsec > 600 ? Math.round(tsec/60) : Math.round(tsec/30)/2; tsec = tmin*60; X = a*tsec/(x1*x1);
+  const Y = theta(geo, 1/m, X, n), T = Tinf - Y*(Tinf - Ti);
+  const shape = {slab:`두께 ${2*x1mm} mm 인 넓은 ${Mt.name} 판 (양면 노출)`, cyl:`지름 ${2*x1mm} mm 인 긴 ${Mt.name} 원기둥`, sph:`지름 ${2*x1mm} mm 인 ${Mt.name} 구`}[geo];
+  const where = n === 0 ? '중심' : `중심에서 ${xmm} mm 떨어진 지점`;
+  const env = heating ? `${Tinf} °C 의 가열 매체` : `${Tinf} °C 의 냉각 매체`;
+  const chart = {opts:{geo, fam:'n', n, m:mStd, Xmax:niceXmax(X), exact:{m, n}}, mark:{X, Y, m, n}};
+  const base = [
+    {type:'num', ask:'m = k/(h·x₁) 을 구하세요.', ans:m, tol:0.03, show:f(m,3), hint:`x₁ = ${X1NAME[geo]} = ${x1mm} mm = ${x1} m`},
+    {type:'num', ask:'n = x/x₁ 을 구하세요.', ans:n, abs:0.011, show:f(n,3), hint:'중심은 n = 0, 표면은 n = 1'},
+  ];
+  const giv = [`${X1NAME[geo]} x₁ = ${x1mm} mm`, `k = ${Mt.k} W/m·K, ρ = ${Mt.rho} kg/m³, cₚ = ${Mt.cp} J/kg·K (α = ${sci(a,3)} m²/s)`, `h = ${h} W/m²·K, Tᵢ = ${Ti} °C, T∞ = ${Tinf} °C`];
+  if (Math.random() < 0.65){
+    const tolT = (0.12*Y + 0.004)*Math.abs(Tinf - Ti);
+    return {tag:`Gurney–Lurie · ${GEOS[geo]}`, title:`${tmin} 분 후 ${where}의 온도`, text:`${Ti} °C 인 ${shape}을(를) ${env}에 넣었습니다. ${tmin} 분 후 ${where}의 온도를 도표로 구하세요.`,
+      givens:[...giv, `t = ${tmin} min`], chart,
+      stages:[...base, {type:'num', ask:'X = αt/x₁² 를 구하세요.', ans:X, tol:0.03, show:f(X,3), hint:'t는 초로 바꾸고 x₁은 m로 넣습니다.'},
+        {type:'num', ask:'도표에서 Y를 읽고 온도 T를 구하세요.', ans:T, abs:tolT, unit:'°C', show:t1(T), hint:'아래 도표에서 n 묶음의 m 곡선을 찾고 X에서 위로 올라갑니다. T = T∞ − Y(T∞ − Tᵢ).'}],
+      solution:`<ol class="steps"><li><b>무차원수</b>m = ${f(Mt.k,3)}/(${h} × ${x1}) = ${f(m,3)}, n = ${f(n,2)}, X = ${sci(a,3)} × ${f(tsec,4)}/${x1}² = ${f(X,3)}</li><li><b>도표</b>${GEOS[geo]} 도표, n = ${n}, m = ${f(m,2)} 곡선에서 Y ≈ ${f(Y,3)}</li><li><b>온도</b>T = ${Tinf} − ${f(Y,3)} × (${Tinf - Ti}) = ${t1(T)} °C</li></ol>`};
+  }
+  const Tt = Math.round(T); const Yt = (Tinf - Tt)/(Tinf - Ti); const Xt = foFor(geo, 1/m, n, Yt); const tt = Xt*x1*x1/a/60;
+  chart.mark = {X:Xt, Y:Yt, m, n, dir:'Y'};
+  return {tag:`Gurney–Lurie · ${GEOS[geo]}`, title:`${where}이(가) ${Tt} °C 가 되는 시간`, text:`${Ti} °C 인 ${shape}을(를) ${env}에 넣었습니다. ${where}의 온도가 ${Tt} °C 에 도달하는 시간을 도표로 구하세요.`,
+    givens:giv, chart,
+    stages:[...base, {type:'num', ask:'Y = (T∞ − T)/(T∞ − Tᵢ) 를 구하세요.', ans:Yt, tol:0.02, show:f(Yt,3)},
+      {type:'num', ask:'도표에서 X를 읽고 시간 t (분)를 구하세요.', ans:tt, tol:0.12, unit:'min', show:f(tt,3), hint:'세로축 Y에서 오른쪽으로 가서 곡선과 만나는 점의 X를 읽습니다. t = X·x₁²/α (초) → 분.'}],
+    solution:`<ol class="steps"><li><b>무차원수</b>m = ${f(m,3)}, n = ${f(n,2)}, Y = (${Tinf} − ${Tt})/(${Tinf} − ${Ti}) = ${f(Yt,3)}</li><li><b>도표</b>X ≈ ${f(Xt,3)}</li><li><b>시간</b>t = ${f(Xt,3)} × ${x1}² / ${sci(a,3)} = ${f(tt*60,4)} s = ${f(tt,3)} min</li></ol>`};
+}
+function gen3D(){
+  const mk = rnd(['gel', 'beef', 'potato', 'cheese']), Mt = MATS[mk], a = Mt.k/(Mt.rho*Mt.cp);
+  const Tinf = rnd([100, 110, 121]), Ti = rnd([10, 20, 25]);
+  if (Math.random() < 0.6){
+    const [m1, fct] = rnd([[1, 1], [2, 1], [1, 2], [2, 2], [4, 2]]); const R = rnd([15, 20, 25, 30])/1000, Lh = R*fct;
+    const h = Number((Mt.k/(m1*R)).toPrecision(3)); const mr = Mt.k/(h*R), mz = Mt.k/(h*Lh);
+    let X1 = rnd([0.15, 0.2, 0.3, 0.4]); let tmin = Math.max(1, Math.round(X1*R*R/a/60)); const t = tmin*60; X1 = a*t/(R*R); const X2 = a*t/(Lh*Lh);
+    const Y1 = theta('cyl', 1/mr, X1, 0), Y2 = theta('slab', 1/mz, X2, 0), Y = Y1*Y2, T = Tinf - Y*(Tinf - Ti);
+    return {tag:'3차원 · 유한 원기둥', title:`통조림 ${Mt.name}의 중심 온도`, text:`지름 ${R*2000} mm, 높이 ${Lh*2000} mm 인 통조림 (내용물 ${Mt.name}, 초기 ${Ti} °C)을 ${Tinf} °C 레토르트에서 ${tmin} 분 가열했습니다. 캔 벽의 저항은 무시합니다. 중심 온도를 구하세요.`,
+      givens:[`k = ${Mt.k} W/m·K, α = ${sci(a,3)} m²/s`, `h = ${h} W/m²·K`, `t = ${tmin} min`],
+      chart:{opts:{geo:'cyl', fam:'n', n:0, m:snapStd(mr, STD_M), Xmax:niceXmax(X1), exact:{m:mr, n:0}}, mark:{X:X1, Y:Y1, m:mr, n:0}, cap:'원기둥 도표 (n = 0)입니다. 평판 방향 Y₂는 평판 도표 또는 탭 4에서 확인하세요.'},
+      stages:[{type:'num', ask:'반지름 방향(무한원기둥, x₁ = R) Y₁ 을 구하세요.', ans:Y1, tol:0.12, abs:0.005, show:f(Y1,3), hint:`m = k/(hR), X = αt/R², n = 0 → 원기둥 도표`},
+        {type:'num', ask:'높이 방향(무한평판, x₁ = H/2) Y₂ 를 구하세요.', ans:Y2, tol:0.12, abs:0.005, show:f(Y2,3), hint:`x₁ = H/2 = ${Lh*1000} mm, m = k/(h x₁), X = αt/x₁² → 평판 도표`},
+        {type:'num', ask:'중심 온도 T 를 구하세요.', ans:T, abs:(0.18*Y + 0.006)*(Tinf - Ti), unit:'°C', show:t1(T), hint:'Y = Y₁ × Y₂, T = T∞ − Y(T∞ − Tᵢ)'}],
+      solution:`<ol class="steps"><li><b>원기둥</b>m = ${f(mr,3)}, X = ${f(X1,3)} → Y₁ ≈ ${f(Y1,3)}</li><li><b>평판</b>m = ${f(mz,3)}, X = ${f(X2,3)} → Y₂ ≈ ${f(Y2,3)}</li><li><b>곱</b>Y = ${f(Y1,3)} × ${f(Y2,3)} = ${f(Y,3)} → T = ${Tinf} − ${f(Y,3)} × ${Tinf - Ti} = ${t1(T)} °C</li></ol>`};
+  }
+  const [m1, fct] = rnd([[1, 1], [2, 1], [1, 2], [2, 2]]); const aH = rnd([10, 15, 20])/1000, cH = aH*fct;
+  const h = Number((Mt.k/(m1*aH)).toPrecision(3)); const ma = Mt.k/(h*aH), mc = Mt.k/(h*cH);
+  const Tc = rnd([2, 4]), Tw = rnd([60, 70, 80]);
+  let X1 = rnd([0.15, 0.2, 0.3, 0.4]); let tmin = Math.max(1, Math.round(X1*aH*aH/a/60)); const t = tmin*60; X1 = a*t/(aH*aH); const X3 = a*t/(cH*cH);
+  const Ya = theta('slab', 1/ma, X1, 0), Yc = theta('slab', 1/mc, X3, 0), Y = Ya*Ya*Yc, T = Tc - Y*(Tc - Tw);
+  return {tag:'3차원 · 직육면체', title:`${Mt.name} 블록의 중심 냉각`, text:`가로·세로 ${aH*2000} mm, 높이 ${cH*2000} mm 인 ${Mt.name} 블록 (초기 ${Tw} °C)을 ${Tc} °C 냉각 공기에 ${tmin} 분 두었습니다. 중심 온도를 구하세요.`,
+    givens:[`k = ${Mt.k} W/m·K, α = ${sci(a,3)} m²/s`, `h = ${h} W/m²·K (모든 면 동일)`, `t = ${tmin} min`],
+    chart:{opts:{geo:'slab', fam:'n', n:0, m:snapStd(ma, STD_M), Xmax:niceXmax(Math.max(X1, X3)), exact:{m:ma, n:0}}, mark:{X:X1, Y:Ya, m:ma, n:0}, cap:'평판 도표 (n = 0)입니다. 가로·세로 방향과 높이 방향 모두 이 도표에서 읽습니다.'},
+    stages:[{type:'num', ask:'가로 방향 평판 (x₁ = 가로/2) 의 Y<sub>x</sub> 를 구하세요. (세로도 같은 값)', ans:Ya, tol:0.12, abs:0.005, show:f(Ya,3), hint:'m = k/(h x₁), X = αt/x₁², n = 0'},
+      {type:'num', ask:'높이 방향 평판 (x₁ = 높이/2) 의 Y<sub>z</sub> 를 구하세요.', ans:Yc, tol:0.12, abs:0.005, show:f(Yc,3)},
+      {type:'num', ask:'중심 온도 T 를 구하세요.', ans:T, abs:(0.25*Y + 0.006)*Math.abs(Tw - Tc), unit:'°C', show:t1(T), hint:'Y = Yₓ × Y_y × Y_z = Yₓ² × Y_z'}],
+    solution:`<ol class="steps"><li><b>가로·세로</b>m = ${f(ma,3)}, X = ${f(X1,3)} → Y ≈ ${f(Ya,3)}</li><li><b>높이</b>m = ${f(mc,3)}, X = ${f(X3,3)} → Y ≈ ${f(Yc,3)}</li><li><b>곱</b>Y = ${f(Ya,3)}² × ${f(Yc,3)} = ${f(Y,3)} → T = ${Tc} − ${f(Y,3)} × (${Tc - Tw}) = ${t1(T)} °C</li></ol>`};
+}
+const EQS = {
+  slab:`∂T/∂t = α ∂²T/∂x²`,
+  cyl:`∂T/∂t = (α/r) ∂/∂r (r ∂T/∂r)`,
+  sph:`∂T/∂t = (α/r²) ∂/∂r (r² ∂T/∂r)`,
+  steadyGen:`0 = ∇²T + q̇/k`,
+  three:`∂T/∂t = α(∂²T/∂x² + ∂²T/∂y² + ∂²T/∂z²)`,
+};
+function genEq(){
+  const kind = rnd(['form', 'form', 'alpha', 'fd', 'term']);
+  if (kind === 'form'){
+    const sc = rnd([
+      {s:'길이가 지름보다 훨씬 긴 소시지를 끓는 물에 넣어 데칩니다. 끝부분의 영향은 무시합니다.', a:'cyl'},
+      {s:'두께 2 cm, 가로세로 30 cm 인 소고기 판을 양면 그릴에서 굽습니다.', a:'slab'},
+      {s:'완두콩 한 알을 냉동고 찬 공기에 노출시켜 냉각합니다.', a:'sph'},
+      {s:'전자레인지로 오래 가열하여 내부 온도가 더 이상 변하지 않는 상태에 도달한 젤 (내부 발열 있음).', a:'steadyGen'},
+      {s:'가로·세로·높이가 비슷한 두부 블록을 냉장고에서 식힙니다.', a:'three'},
+    ]);
+    const opts = ['slab', 'cyl', 'sph', 'steadyGen', 'three'].sort(() => Math.random() - .5).slice(0, 4);
+    if (!opts.includes(sc.a)) opts[ri(0, 3)] = sc.a;
+    return {tag:'열전도 방정식', title:'상황에 맞는 열전도 방정식 고르기', text:sc.s + ' 물성은 일정하고, 따로 언급이 없으면 내부 발열은 없습니다.', givens:['대칭성과 정상/비정상 여부를 먼저 판단하세요'],
+      stages:[{type:'choice', ask:'가장 알맞은 지배방정식은?', options:opts.map(k => EQS[k]), correct:opts.indexOf(sc.a), hint:'형상(평판·원기둥·구), 차원 수, ∂T/∂t 존재 여부, q̇ 존재 여부를 확인하세요.'}],
+      solution:`<p>정답: <span class="eq">${EQS[sc.a]}</span>. ${{slab:'두께 방향 열흐름만 중요한 무한평판입니다.', cyl:'길이 방향 열흐름이 무시되어 반지름 방향만 남는 원통좌표 식입니다.', sph:'구 대칭이므로 반지름 방향만 남는 구좌표 식입니다.', steadyGen:'시간 변화가 없으므로 ∂T/∂t = 0 이고, 발열항이 남습니다.', three:'세 방향 크기가 비슷해 모든 방향의 전도를 고려해야 합니다.'}[sc.a]}</p>`};
+  }
+  if (kind === 'alpha'){
+    const mk = rnd(FOODS), Mt = MATS[mk], a = Mt.k/(Mt.rho*Mt.cp);
+    return {tag:'열확산계수', title:`${Mt.name}의 열확산계수`, text:`${Mt.name}의 열확산계수 α 를 계산하세요. 답은 ×10⁻⁷ m²/s 단위의 숫자로 입력합니다 (예: 1.43).`, givens:[`k = ${Mt.k} W/m·K`, `ρ = ${Mt.rho} kg/m³`, `cₚ = ${Mt.cp} J/kg·K`],
+      stages:[{type:'num', ask:'α = k/(ρ cₚ) = ? × 10⁻⁷ m²/s', ans:a*1e7, tol:0.02, unit:'×10⁻⁷ m²/s', show:f(a*1e7,3), hint:'k를 ρ와 cₚ의 곱으로 나눕니다.'}],
+      solution:`<p>α = ${Mt.k}/(${Mt.rho} × ${Mt.cp}) = ${sci(a,3)} m²/s</p>`};
+  }
+  if (kind === 'fd'){
+    const mk = rnd(FOODS), Mt = MATS[mk], a = Mt.k/(Mt.rho*Mt.cp), dx = rnd([1, 2, 2.5])/1000;
+    const Tm = ri(30, 60), Tl = Tm + ri(-15, 25), Tr = Tm + ri(-10, 30);
+    const rate = a*(Tr - 2*Tm + Tl)/(dx*dx)*60;
+    return {tag:'열전도 방정식 · 유한차분', title:'세 점의 온도로 온도 변화 속도 구하기', text:`${Mt.name} 판 내부의 이웃한 세 점(간격 Δx = ${dx*1000} mm)의 현재 온도가 아래와 같습니다. 가운데 점의 온도는 1분에 몇 °C 변하겠습니까? (∂T/∂t = α ∂²T/∂x²)`,
+      givens:[`T(왼쪽) = ${Tl} °C, T(가운데) = ${Tm} °C, T(오른쪽) = ${Tr} °C`, `α = ${sci(a,3)} m²/s`],
+      stages:[{type:'choice', ask:'가운데 점은 데워집니까, 식습니까?', options:['데워진다 (곡률 ∂²T/∂x² > 0)', '식는다 (곡률 ∂²T/∂x² < 0)', '변하지 않는다'], correct: Tr - 2*Tm + Tl > 0 ? 0 : Tr - 2*Tm + Tl < 0 ? 1 : 2, hint:'T(왼) − 2T(가운데) + T(오른)의 부호를 보세요.'},
+        {type:'num', ask:'dT/dt 를 °C/min 단위로 구하세요.', ans:rate, tol:0.03, abs:0.01, unit:'°C/min', show:f(rate,3), hint:'∂²T/∂x² ≈ (T₊ − 2T₀ + T₋)/Δx², α를 곱한 뒤 60을 곱합니다.'}],
+      solution:`<p>∂²T/∂x² ≈ (${Tr} − 2×${Tm} + ${Tl})/(${dx})² = ${f((Tr - 2*Tm + Tl)/(dx*dx),3)} K/m², dT/dt = ${sci(a,3)} × 그 값 = ${f(rate/60,3)} K/s = ${f(rate,3)} °C/min</p>`};
+  }
+  const sc = rnd([
+    {q:'에너지 수지에서 비정상상태에만 나타나는 항은?', o:['ρcₚ ∂T/∂t (축적항)', 'k ∂²T/∂x² (전도항)', 'q̇ (발열항)', 'h(T − T∞) (대류항)'], c:0},
+    {q:'열확산계수 α 가 큰 물질의 특징은?', o:['온도 변화가 내부로 빨리 퍼진다', '열을 많이 저장한다', '표면 대류가 크다', 'Biot 수가 항상 크다'], c:0},
+    {q:'Gurney–Lurie 도표의 m 은 무엇의 역수입니까?', o:['Biot 수 (hx₁/k)', 'Fourier 수 (αt/x₁²)', 'Nusselt 수 (hL/k_fluid)', 'Prandtl 수'], c:0},
+    {q:'대류 경계조건 −k ∂T/∂x|ₛ = h(Tₛ − T∞) 의 물리적 의미는?', o:['표면으로 전도된 열 = 매체로 대류된 열', '표면 온도 = 매체 온도', '표면이 단열되어 있다', '내부 발열 = 대류 열'], c:0},
+  ]);
+  const order = [0, 1, 2, 3].sort(() => Math.random() - .5);
+  return {tag:'개념', title:'개념 확인', text:sc.q, givens:['한 가지를 고르세요'],
+    stages:[{type:'choice', ask:sc.q, options:order.map(i => sc.o[i]), correct:order.indexOf(sc.c)}], solution:`<p>정답: ${sc.o[sc.c]}</p>`};
+}
+
+/* ======================================================================
+   GAME
+   ====================================================================== */
+const GAME = {score:0, streak:0, count:0, type:'all'};
+const GTYPES = [['all','전체'],['lumped','집중계'],['chart','도표'],['multi','3차원'],['eq','방정식·개념']];
+function genAny(){
+  const t = GAME.type === 'all' ? rnd(['lumped', 'chart', 'chart', 'multi', 'eq']) : GAME.type;
+  return {lumped:genLumped, chart:genChart, multi:gen3D, eq:genEq}[t]();
+}
+let gamePlayer;
+function gameScore(){ $('#gScore').textContent = GAME.score; $('#gStreak').textContent = GAME.streak; $('#gCount').textContent = GAME.count; }
+
+/* ======================================================================
+   VIEW SWITCHING / INIT
+   ====================================================================== */
+const VIEWS = ['concept', 'lumped', 'equation', 'chart', 'multi', 'game'];
+const PRAC = {};
+function showView(v){
+  if (!VIEWS.includes(v)) v = 'concept';
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
+  VIEWS.forEach(n => $('#view-' + n).hidden = n !== v);
+  requestAnimationFrame(() => {
+    if (v === 'chart') gUpdate();
+    if (v === 'lumped' && !PRAC.l.started()) PRAC.l.load();
+    if (v === 'equation' && !PRAC.e.started()) PRAC.e.load();
+    if (v === 'chart' && !PRAC.g.started()) PRAC.g.load();
+    if (v === 'multi' && !PRAC.m.started()) PRAC.m.load();
+    if (v === 'game' && !gamePlayer.started()) gamePlayer.load();
+    REDRAW.forEach(fn => fn());
+  });
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { location.hash = b.dataset.view; showView(b.dataset.view); });
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+$('#bigBtn').onclick = e => { const on = !document.documentElement.classList.contains('big'); document.documentElement.classList.toggle('big', on); e.currentTarget.setAttribute('aria-pressed', on); setTimeout(() => { gUpdate(); REDRAW.forEach(fn => fn()); }, 60); };
+let rzT; window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { if (!$('#view-chart').hidden) gUpdate(); REDRAW.forEach(fn => fn()); }, 120); });
+
+cBuild(); lBuild(); eBuild(); fdBuild(); gBuild(); mBuild();
+cUpdate(); lUpdate(); gUpdate(); mUpdate();
+PRAC.l = Player($('#lPrac'), genLumped);
+PRAC.e = Player($('#ePrac'), genEq);
+PRAC.g = Player($('#gPrac'), genChart);
+PRAC.m = Player($('#mPrac'), gen3D);
+gamePlayer = Player($('#gamePlay'), genAny, clean => { GAME.count++; if (clean){ GAME.score += 10 + 2*GAME.streak; GAME.streak++; } else GAME.streak = 0; gameScore(); });
+$('#gTypes').innerHTML = GTYPES.map(([v, s]) => `<button data-v="${v}" aria-pressed="${v === 'all'}">${s}</button>`).join('');
+$('#gTypes').onclick = e => { const b = e.target.closest('button'); if (!b) return; GAME.type = b.dataset.v; $('#gTypes').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); gamePlayer.load(); };
+loopScene('개념 애니메이션', $('#cScene'), cDraw);
+loopScene('집중계 애니메이션', $('#lScene'), lDraw);
+loopScene('유한차분', $('#fdScene'), fdDraw);
+loopScene('3차원 단면', $('#mScene'), mDraw);
+showView(location.hash.slice(1));
+</script>
+
+</body>
+</html>
